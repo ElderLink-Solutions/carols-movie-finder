@@ -5,7 +5,7 @@
         xmlns:vm="using:MovieFinder.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="MovieFinder.Views.MainWindow"
-        Title="Carol's Movie Finder"
+        Title="Carol's Movie Finder - {Binding BarcodeScannerStatus}"
         x:DataType="vm:MainWindowViewModel">
 
     <Design.DataContext>
@@ -14,14 +14,32 @@
     </Design.DataContext>
 
     <DockPanel Margin="10">
+        <!-- Menu Bar -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File"/>
+            <MenuItem Header="_Debug">
+                <MenuItem Header="Debug Window" PointerPressed="OpenDebugWindow"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Barcode Scanner Status Section -->
+        <Border DockPanel.Dock="Top" Background="Salmon" CornerRadius="6" Padding="8" Margin="0,10,0,10">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="Barcode Scanner Status:" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding BarcodeScannerStatus}" FontWeight="Bold" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Search Section -->
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Search Movies:" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <TextBox Text="{Binding SearchQuery}" Watermark="Search for a movie..." Width="300"/>
             <Button Command="{Binding SearchMoviesCommand}" Content="Search"/>
         </StackPanel>
 
-        <Button DockPanel.Dock="Bottom" Content="Add New Movie" HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
-
-        <ListBox ItemsSource="{Binding Movies}" Margin="0,10,0,0">
+        <!-- Movies List Section -->
+        <TextBlock Text="Search Results:" FontWeight="Bold" Margin="0,10,0,0"/>
+        <ListBox ItemsSource="{Binding Movies}" Margin="0,5,0,0">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Spacing="5">
@@ -31,5 +49,22 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+
+        <!-- Log Information Section -->
+        <Border DockPanel.Dock="Bottom" Background="LightGray" CornerRadius="6" Padding="8" Margin="0,10,0,10">
+            <StackPanel Spacing="5">
+                <TextBlock Text="Log Information:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding LogFilePath, StringFormat='Log File: {0}'}"/>
+                <TextBlock Text="{Binding CsvFilePath, StringFormat='CSV File: {0}'}"/>
+                <TextBlock Text="Application Log:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding ApplicationLog}" FontFamily="monospace"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Bottom Row Section -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+            <TextBlock Text="Add a new movie to the collection:" VerticalAlignment="Center"/>
+            <Button Command="{Binding AddNewMovieCommand}" Content="Add New Movie" HorizontalAlignment="Stretch"/>
+        </StackPanel>
     </DockPanel>
 </Window>

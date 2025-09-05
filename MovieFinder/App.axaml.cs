@@ -26,12 +26,13 @@ public partial class App : Application
         Directory.CreateDirectory(dbFolder);
         var dbPath = Path.Combine(dbFolder, "movies.db3");
         Database = new Database(dbPath);
+        var barcodeService = new BarcodeService();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(Database)
+                DataContext = new MainWindowViewModel(Database, barcodeService)
             };
         }
 

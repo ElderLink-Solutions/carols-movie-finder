@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Launch (MovieFinder)",
+      "type": "coreclr",
+      "request": "launch",
+      // This task runs before debugging starts. It's defined in tasks.json
+      "preLaunchTask": "build-movie-finder",
+      // IMPORTANT: This path must point to your project's compiled DLL.
+      // You may need to adjust the '.NET version' (e.g., net8.0, net9.0).
+      "program": "${workspaceFolder}/MovieFinder/bin/Debug/net8.0/MovieFinder.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/MovieFinder",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ]
+}

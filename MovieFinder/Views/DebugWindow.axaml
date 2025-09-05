@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:MovieFinder.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+        x:Class="MovieFinder.Views.DebugWindow"
+        x:DataType="vm:DebugWindowViewModel"
+        Title="Debug Window">
+
+    <StackPanel Spacing="10" Margin="10">
+        <Button Content="Check for Barcode Scanner" Command="{Binding CheckBarcodeScannerCommand}"/>
+        <TextBlock Text="{Binding BarcodeScannerStatus}" HorizontalAlignment="Center"/>
+        <StackPanel>
+            <TextBlock Text="Device Information:" FontWeight="Bold"/>
+            <TextBlock Text="{Binding DeviceInfo.VendorId, StringFormat='Vendor ID: {0}'}"/>
+            <TextBlock Text="{Binding DeviceInfo.ProductId, StringFormat='Product ID: {0}'}"/>
+            <TextBlock Text="{Binding DeviceInfo.SerialNumber, StringFormat='Serial Number: {0}'}"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
