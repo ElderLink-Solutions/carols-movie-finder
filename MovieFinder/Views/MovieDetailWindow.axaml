@@ -1,25 +1,109 @@
-<!-- Views/MovieDetailWindow.axaml -->
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:MovieFinder.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="350"
         x:Class="MovieFinder.Views.MovieDetailWindow"
-        x:DataType="vm:MovieDetailWindowViewModel"
-        Title="Movie Details">
-    <Grid RowDefinitions="Auto, Auto, Auto, Auto, *" Margin="10">
-        <TextBlock Grid.Row="0" Text="Movie Details" FontWeight="Bold" FontSize="18"/>
+        x:DataType="vm:MovieAddMovieFormViewModel"
+        
+        
+        Title="Movie Details"
+        SystemDecorations="None"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="Transparent"
+        TransparencyLevelHint="AcrylicBlur">
 
-        <TextBlock Grid.Row="1" Text="Shelf Location:"/>
-        <TextBox Grid.Row="2" Text="{Binding ShelfLocation}"/>
+    <Design.DataContext>
+        <vm:MovieAddMovieFormViewModel/>
+    </Design.DataContext>
 
-        <TextBlock Grid.Row="3" Text="Borrowed By:"/>
-        <TextBox Grid.Row="4" Text="{Binding BorrowedBy}"/>
+    <Window.Resources>
+        <SolidColorBrush x:Key="PrimaryBackground" Color="#1E1B2E"/>
+        <SolidColorBrush x:Key="SecondaryBackground" Color="#2A273F"/>
+        <SolidColorBrush x:Key="PrimaryForeground" Color="#E0DDEF"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#7F5AF0"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#4A475F"/>
+        
+    </Window.Resources>
 
-        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button Content="Save" Command="{Binding SaveCommand}"/>
-            <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="10,0,0,0"/>
-        </StackPanel>
-    </Grid>
+    <!-- Define the Theme and Global Styles Inherited from MainWindow -->
+    <Window.Styles>
+        
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#9270F8"/>
+        </Style>
+        <Style Selector="Button.cancel">
+             <Setter Property="Background" Value="{StaticResource BorderColor}"/>
+        </Style>
+        <Style Selector="Button.cancel:pointerover /template/ ContentPresenter">
+             <Setter Property="Background" Value="#615E7C"/>
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="{StaticResource SecondaryBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource AccentColor}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10"/>
+        </Style>
+    </Window.Styles>
+
+    <!-- Main Window Content with a background and rounded corners -->
+    <Border Background="{StaticResource PrimaryBackground}"
+            CornerRadius="12"
+            BorderBrush="{StaticResource AccentColor}"
+            BorderThickness="1">
+      
+        <Grid RowDefinitions="Auto, *, Auto">
+            
+            <!-- ROW 0: Custom Title Bar -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="#2A273F" PointerPressed="BeginMoveDrag">
+                <TextBlock Grid.Column="0" Text="Movie Details" FontWeight="Bold" Margin="16,0"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                     <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40"/>
+                     <Style Selector="Button:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#4A475F"/>
+                    </Style>
+                </StackPanel>
+            </Grid>
+
+            <!-- ROW 1: Main Content Area -->
+            <StackPanel Grid.Row="1" Margin="24" Spacing="12">
+                
+                <TextBlock Text="Shelf Location:" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding ShelfLocation}" Watermark="e.g., Shelf A, Row 2"/>
+
+                <TextBlock Text="Borrowed By:" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                <TextBox Text="{Binding BorrowedBy}" Watermark="Enter name or leave blank"/>
+                
+            </StackPanel>
+            
+            <!-- ROW 2: Bottom Action Bar -->
+            <Border Grid.Row="2" Background="{StaticResource SecondaryBackground}" Padding="16">
+                 <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" Classes="cancel"/>
+                    <Button Content="Save" Command="{Binding SaveCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

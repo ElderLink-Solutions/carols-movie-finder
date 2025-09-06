@@ -8,6 +8,8 @@ using MovieFinder.Models;
 using MovieFinder.Services;
 using MovieFinder.Views;
 using Avalonia.Threading;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace MovieFinder.ViewModels;
 
@@ -60,6 +62,33 @@ public partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private Movie? _selectedMovie;
+
+    partial void OnSelectedMovieChanged(Movie? value)
+    {
+        if (value != null)
+        {
+            // Open MovieDetailDisplayWindow
+            Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                if (value.ImdbID != null)
+                {
+                    var cachePath = $"Cache/OMDB/{value.ImdbID}.json";
+                    if (File.Exists(cachePath))
+                    {
+                        var cachedResponse = await File.ReadAllTextAsync(cachePath);
+                        var fullOmdbJson = JObject.Parse(cachedResponse);
+
+                        var movieDetailDisplayViewModel = new MovieDetailWindowViewModel(value, fullOmdbJson);
+                        var movieDetailDisplayWindow = new MovieDetailDisplayWindow
+                        {
+                            DataContext = movieDetailDisplayViewModel
+                        };
+                        await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow);
+                    }
+                }
+            });
+        }
+    }
 
     private bool _showKeyEventsOnly = true;
     public bool ShowKeyEventsOnly
@@ -150,7 +179,7 @@ public partial class MainWindowViewModel : ObservableObject
             // Open the MovieDetailWindow
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                var movieDetailViewModel = new MovieDetailWindowViewModel(movie);
+                var movieDetailViewModel = new MovieAddMovieFormViewModel(movie);
                 var movieDetailWindow = new MovieDetailWindow
                 {
                     DataContext = movieDetailViewModel
@@ -161,10 +190,6 @@ public partial class MainWindowViewModel : ObservableObject
                 if (App.CurrentMainWindow != null)
                 {
                     result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
-                }
-                else
-                {
-                    result = await movieDetailWindow.ShowDialog<bool?>(null);
                 }
 
                 if (result == true) // Save button was clicked

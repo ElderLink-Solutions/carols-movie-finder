@@ -1,0 +1,134 @@
+<!-- Views/MovieDetailDisplayWindow.axaml -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:MovieFinder.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="MovieFinder.Views.MovieDetailDisplayWindow"
+        x:DataType="vm:MovieDetailWindowViewModel"
+        Title="Movie Details"
+        SystemDecorations="None"
+        SizeToContent="WidthAndHeight"
+        CanResize="True"
+        WindowStartupLocation="CenterOwner"
+        Background="Transparent"
+        TransparencyLevelHint="AcrylicBlur">
+
+    <Design.DataContext>
+        <vm:MovieDetailWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="PrimaryBackground" Color="#1E1B2E"/>
+        <SolidColorBrush x:Key="SecondaryBackground" Color="#2A273F"/>
+        <SolidColorBrush x:Key="PrimaryForeground" Color="#E0DDEF" />
+        <SolidColorBrush x:Key="AccentColor" Color="#7F5AF0" />
+        <SolidColorBrush x:Key="BorderColor" Color="#4A475F" />
+        <SolidColorBrush x:Key="SuccessColor" Color="#2CB67D" />
+        <SolidColorBrush x:Key="ErrorColor" Color="#EF4565" />
+    </Window.Resources>
+
+    <!-- Inherit styles from MainWindow -->
+    <Window.Styles>
+
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#9270F8"/>
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="{StaticResource SecondaryBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource AccentColor}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10"/>
+        </Style>
+    </Window.Styles>
+
+    <Border Background="{StaticResource PrimaryBackground}"
+            CornerRadius="12"
+            BorderBrush="{StaticResource AccentColor}"
+            BorderThickness="1">
+
+        <Grid RowDefinitions="Auto, *, Auto">
+
+            <!-- ROW 0: Custom Title Bar -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="#2A273F" PointerPressed="BeginMoveDrag">
+                <TextBlock Grid.Column="0" Text="{Binding Title}" FontWeight="Bold" Margin="16,0"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40"/>
+                    <Style Selector="Button:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#4A475F"/>
+                    </Style>
+                </StackPanel>
+            </Grid>
+
+            <!-- ROW 1: Main Content Area -->
+            <ScrollViewer Grid.Row="1" Margin="24">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <TextBlock Grid.Column="0" Text="Year:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Year}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <TextBlock Grid.Column="0" Text="Genre:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Genre}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <TextBlock Grid.Column="0" Text="Director:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Director}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <TextBlock Grid.Column="0" Text="Actors:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Actors}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <TextBlock Grid.Column="0" Text="Plot:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Plot}" TextWrapping="Wrap"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <TextBlock Grid.Column="0" Text="IMDb Rating:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ImdbRating}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                        <TextBlock Grid.Column="0" Text="Runtime:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Runtime}"/>
+                    </Grid>
+
+                    <!-- Poster Section -->
+                    <TextBlock Text="Poster:" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                    <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="10"
+                            HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <TextBlock Text="{Binding Poster}" TextWrapping="Wrap" MaxWidth="200"/>
+                    </Border>
+
+                    <!-- Full JSON Details Button -->
+                    <Button Content="View Full JSON" Command="{Binding OpenFullJsonDetailsCommand}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ROW 2: Bottom Action Bar (Optional, can be removed if no actions) -->
+            <Border Grid.Row="2" Background="{StaticResource SecondaryBackground}" Padding="16">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Close" Click="CloseWindow"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

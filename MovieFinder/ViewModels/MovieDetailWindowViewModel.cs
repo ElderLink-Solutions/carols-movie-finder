@@ -1,39 +1,74 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MovieFinder.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 
 namespace MovieFinder.ViewModels;
 
 public partial class MovieDetailWindowViewModel : ObservableObject
 {
-    public Action<bool>? CloseRequested { get; set; }
-    public Movie Movie { get; }
+    public Action? CloseRequested { get; set; }
+    public Action<string>? OpenFullJsonDetailsRequested { get; set; }
+    [ObservableProperty]
+    private string? _title;
 
     [ObservableProperty]
-    private string _shelfLocation = string.Empty;
+    private string? _year;
 
     [ObservableProperty]
-    private string _borrowedBy = string.Empty;
+    private string? _genre;
 
-    public MovieDetailWindowViewModel(Movie movie)
+    [ObservableProperty]
+    private string? _director;
+
+    [ObservableProperty]
+    private string? _actors;
+
+    [ObservableProperty]
+    private string? _plot;
+
+    [ObservableProperty]
+    private string? _imdbRating;
+
+    [ObservableProperty]
+    private string? _runtime;
+
+    [ObservableProperty]
+    private string _poster = "Not Implemented"; // Placeholder for poster
+
+    [ObservableProperty]
+    private string? _fullJsonOutput;
+
+    public MovieDetailWindowViewModel(Movie movie, JObject? fullOmdbJson = null)
     {
-        Movie = movie;
-        ShelfLocation = movie.ShelfLocation ?? string.Empty;
-        BorrowedBy = movie.BorrowedBy ?? string.Empty;
+        Title = movie.Title;
+        Year = movie.Year;
+        Genre = movie.Genre;
+        Director = movie.Director;
+        Actors = movie.Actors;
+        Plot = movie.Plot;
+        ImdbRating = movie.ImdbRating;
+        Runtime = movie.Runtime;
+
+        if (!string.IsNullOrEmpty(movie.Poster))
+        {
+            Poster = movie.Poster;
+        }
+
+        if (fullOmdbJson != null)
+        {
+            FullJsonOutput = fullOmdbJson.ToString(Formatting.Indented);
+        }
     }
 
     [RelayCommand]
-    private void Save()
+    private void OpenFullJsonDetails()
     {
-        Movie.ShelfLocation = ShelfLocation;
-        Movie.BorrowedBy = BorrowedBy;
-        CloseRequested?.Invoke(true);
-    }
-
-    [RelayCommand]
-    private void Cancel()
-    {
-        CloseRequested?.Invoke(false);
+        if (FullJsonOutput != null)
+        {
+            OpenFullJsonDetailsRequested?.Invoke(FullJsonOutput);
+        }
     }
 }

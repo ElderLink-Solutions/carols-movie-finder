@@ -20,11 +20,17 @@ public class Movie
     [JsonProperty("Director")]
     public string? Director { get; set; }
 
+    [JsonProperty("Actors")]
+    public string? Actors { get; set; }
+
     [JsonProperty("Plot")]
     public string? Plot { get; set; }
 
     [JsonProperty("imdbRating")]
     public string? ImdbRating { get; set; }
+
+    [JsonProperty("Runtime")]
+    public string? Runtime { get; set; }
 
     public string ShelfLocation { get; set; } = string.Empty;
 
