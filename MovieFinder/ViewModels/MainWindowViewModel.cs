@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using MovieFinder.Models;
 using MovieFinder.Services;
 using MovieFinder.Views;
+using Avalonia.Threading;
 
 namespace MovieFinder.ViewModels;
 
@@ -147,33 +148,35 @@ public partial class MainWindowViewModel : ObservableObject
             _logger?.Event($"Found movie: {movie.Title}");
 
             // Open the MovieDetailWindow
-            var movieDetailViewModel = new MovieDetailWindowViewModel(movie);
-            var movieDetailWindow = new MovieDetailWindow
+            Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                DataContext = movieDetailViewModel
-            };
-
-            // Show the window and wait for a result, only if owner is not null
-            bool? result = null;
-            if (App.CurrentMainWindow != null)
-            {
-                result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
-            }
-            else
-            {
-                result = await movieDetailWindow.ShowDialog<bool?>(null);
-            }
-
-            if (result == true) // Save button was clicked
-            {
-                // Update the database
-                if (_database != null)
+                var movieDetailViewModel = new MovieDetailWindowViewModel(movie);
+                var movieDetailWindow = new MovieDetailWindow
                 {
-                    await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
-                    _logger?.Event($"Database updated, ID: {movie.Id}");
+                    DataContext = movieDetailViewModel
+                };
+
+                // Show the window and wait for a result, only if owner is not null
+                bool? result = null;
+                if (App.CurrentMainWindow != null)
+                {
+                    result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
                 }
-            }
-            _barcodeService?.StopReadingBarcodesAsync(); // Stop the scanner here
+                else
+                {
+                    result = await movieDetailWindow.ShowDialog<bool?>(null);
+                }
+
+                if (result == true) // Save button was clicked
+                {
+                    // Update the database
+                    if (_database != null)
+                    {
+                        await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
+                        _logger?.Event($"Database updated, ID: {movie.Id}");
+                    }
+                }
+            });
         }
         else
         {
