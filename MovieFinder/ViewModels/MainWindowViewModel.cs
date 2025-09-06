@@ -172,13 +172,14 @@ public partial class MainWindowViewModel : ObservableObject
         var movie = await _movieService.FetchMovieDetailsFromBarcode(barcode);
         if (movie != null)
         {
-            Movies.Clear();
-            Movies.Add(movie);
             _logger?.Event($"Found movie: {movie.Title}");
 
             // Open the MovieDetailWindow
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
+                Movies.Clear();
+                Movies.Add(movie);
+
                 var movieDetailViewModel = new MovieAddMovieFormViewModel(movie);
                 var movieDetailWindow = new MovieDetailWindow
                 {

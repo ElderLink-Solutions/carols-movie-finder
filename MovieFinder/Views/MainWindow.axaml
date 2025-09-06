@@ -89,25 +89,9 @@
             </Grid>
 
             <Grid Grid.Row="1" Margin="24">
-                <Grid RowDefinitions="Auto, *">
-                    <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,20">
-                        <Border Grid.Column="0"
-                                BorderBrush="{Binding BarcodeScannerStatus, Converter={StaticResource StatusToColorConverter}}"
-                                BorderThickness="2" CornerRadius="8" Padding="12,8" Margin="0,0,20,0">
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <TextBlock Text="Scanner:" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding BarcodeScannerStatus}" FontWeight="Bold"/>
-                            </StackPanel>
-                        </Border>
-
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                            <TextBox Text="{Binding SearchQuery}" Watermark="Search for a movie..." Width="300"/>
-                            <Button Command="{Binding SearchMoviesCommand}" Content="Search"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="16">
-                        <!-- Movies List -->
+                <Grid ColumnDefinitions="2*, *">
+                    <!-- Movies List -->
+                    <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="16">
                         <ListBox ItemsSource="{Binding Movies}" SelectionMode="Single" Background="Transparent" BorderThickness="0"
                                  SelectedItem="{Binding SelectedMovie, Mode=TwoWay}" PointerReleased="MovieItem_PointerReleased">
                             <ListBox.ItemTemplate>
@@ -124,15 +108,16 @@
                         
                         <!-- Copied Notification -->
                         <TextBlock Text="{Binding CopiedNotification}" IsVisible="{Binding CopiedNotificationVisible}" Foreground="{StaticResource SuccessColor}" FontWeight="Bold"/>
-                        <!-- Log Messages List -->
-                        <ListBox ItemsSource="{Binding FilteredLogMessages}" Background="Transparent" BorderThickness="0" PointerReleased="LogItem_PointerReleased">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
                     </StackPanel>
+
+                    <!-- Log Messages List -->
+                    <ListBox Grid.Column="1" ItemsSource="{Binding FilteredLogMessages}" Background="Transparent" BorderThickness="0" PointerReleased="LogItem_PointerReleased">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
             </Grid>
 
