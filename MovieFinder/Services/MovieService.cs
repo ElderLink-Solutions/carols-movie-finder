@@ -43,12 +43,19 @@ public class MovieService
 
     private async Task<JObject?> GetMovieIdentifierFromUpc(string barcode)
     {
-        var cachePath = $"barcodes/{barcode}.json";
+        var cachePath = $"Cache/Barcodes/{barcode}.json";
         if (File.Exists(cachePath))
         {
             var cachedResponse = await File.ReadAllTextAsync(cachePath);
             _logger.Event($"Barcode found in cache: {barcode}.json");
-            return JObject.Parse(cachedResponse);
+            var data = JObject.Parse(cachedResponse);
+            if (data?["item_attributes"]?["title"]?.ToString() is string title && !string.IsNullOrEmpty(title))
+            {
+                var identifier = new JObject();
+                identifier["title"] = title;
+                return identifier;
+            }
+            return null;
         }
 
         if (string.IsNullOrEmpty(_upcItemDbApiKey))
@@ -68,7 +75,7 @@ public class MovieService
 
             if (data?["item_attributes"]?["title"]?.ToString() is string title && !string.IsNullOrEmpty(title))
             {
-                Directory.CreateDirectory("barcodes");
+                Directory.CreateDirectory("Cache/Barcodes");
                 await File.WriteAllTextAsync(cachePath, response);
                 var identifier = new JObject();
                 identifier["title"] = title;
@@ -94,6 +101,16 @@ public class MovieService
         string? imdbId = movieIdentifier?["imdb_id"]?.ToString();
         string? title = movieIdentifier?["title"]?.ToString();
 
+        if (title != null)
+        {
+            var blacklistedTerms = new[] { "[Double Sided]" };
+            foreach (var term in blacklistedTerms)
+            {
+                title = title.Replace(term, "");
+            }
+            title = title.Trim();
+        }
+
         if (imdbId != null)
         {
             var cachePath = $"Cache/OMDB/{imdbId}.json";
@@ -107,12 +124,14 @@ public class MovieService
 
         if (title != null)
         {
+            _logger.Event($"Looking up title '{title}' in Cache/OMDB/files.json");
             var filesJson = await File.ReadAllTextAsync("Cache/OMDB/files.json");
             var filesData = JObject.Parse(filesJson);
-            var fileEntry = filesData?["files"]?.FirstOrDefault(f => f["t"]?.ToString() == WebUtility.UrlEncode(title));
+            var fileEntry = filesData?["files"]?.FirstOrDefault(f => WebUtility.UrlDecode(f["t"]?.ToString()) == title);
             if (fileEntry != null)
             {
                 imdbId = fileEntry["imdbId"]?.ToString();
+                _logger.Event($"Found entry in files.json: imdbId='{imdbId}'");
                 if (imdbId != null)
                 {
                     var cachePath = $"Cache/OMDB/{imdbId}.json";
@@ -123,6 +142,10 @@ public class MovieService
                         return JsonConvert.DeserializeObject<Movie>(cachedResponse);
                     }
                 }
+            }
+            else
+            {
+                _logger.Event($"No entry found for title '{title}' in Cache/OMDB/files.json");
             }
         }
 
