@@ -87,27 +87,25 @@
                 </StackPanel>
             </Grid>
 
-                            <Grid Grid.Row="1" ColumnDefinitions="Auto, *" Margin="0,0,0,20">
-                    <Border Grid.Column="0"
-                            BorderBrush="{Binding BarcodeScannerStatus, Converter={StaticResource StatusToColorConverter}}"
-                            BorderThickness="2" CornerRadius="8" Padding="12,8" Margin="0,0,20,0">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="Scanner:" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding BarcodeScannerStatus}" FontWeight="Bold"/>
-                        </StackPanel>
-                    </Border>
-
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                        <TextBox Text="{Binding SearchQuery}" Watermark="Search for a movie..." Width="300"/>
-                        <Button Command="{Binding SearchMoviesCommand}" Content="Search"/>
-                    </StackPanel>
-                </Grid>
-
             <Grid Grid.Row="1" Margin="24">
-                <Grid RowDefinitions="*, Auto, 2*">
-                    <ListBox Grid.Row="0" ItemsSource="{Binding Movies}" Background="Transparent" BorderThickness="0"/>
-                    <GridSplitter Grid.Row="1" Height="5" Background="Gray" HorizontalAlignment="Stretch"/>
-                    <ListBox Grid.Row="2" ItemsSource="{Binding FilteredLogMessages}" Background="#1E1B2E" BorderThickness="0">
+                <Grid RowDefinitions="Auto, *">
+                    <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,20">
+                        <Border Grid.Column="0"
+                                BorderBrush="{Binding BarcodeScannerStatus, Converter={StaticResource StatusToColorConverter}}"
+                                BorderThickness="2" CornerRadius="8" Padding="12,8" Margin="0,0,20,0">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Scanner:" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding BarcodeScannerStatus}" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                            <TextBox Text="{Binding SearchQuery}" Watermark="Search for a movie..." Width="300"/>
+                            <Button Command="{Binding SearchMoviesCommand}" Content="Search"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <ListBox Grid.Row="1" ItemsSource="{Binding FilteredLogMessages}" Background="Transparent" BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
