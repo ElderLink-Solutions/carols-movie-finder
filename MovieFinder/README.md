@@ -7,6 +7,10 @@ MovieFinder is a cross-platform desktop application designed to help users manag
 
 The purpose of MovieFinder is to offer an easy-to-use tool for cataloging, searching, and managing movie information locally. It is ideal for movie enthusiasts who want to keep track of their collections, including details such as titles, barcodes, and other metadata.
 
+## How it works
+
+When a barcode is scanned using the connected barcode device, MovieFinder submits a request to [barcodespider.com](https://www.barcodespider.com/) to look up information about the scanned barcode. The returned information (such as title or identifiers) is then used to make one or more requests to [omdbapi.com](https://www.omdbapi.com/) to retrieve detailed movie information and a second request to fetch the movie poster. Both the movie details and the poster are then stored in the local database for fast, offline access and future reference.
+
 ## Key Features
 
 - **Add, search, and manage movies** in a local database
