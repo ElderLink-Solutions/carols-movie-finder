@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:MovieFinder.ViewModels"
         xmlns:models="using:MovieFinder.Models"
-        xmlns:converters="using:MovieFinder.Converters"
+        xmlns:converters="using:MovieFinder"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="MovieFinder.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -24,6 +24,7 @@
     </Design.DataContext>
 
     <Window.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <SolidColorBrush x:Key="PrimaryBackground" Color="#1E1B2E"/>
         <SolidColorBrush x:Key="SecondaryBackground" Color="#2A273F"/>
@@ -105,13 +106,33 @@
                         </StackPanel>
                     </Grid>
 
-                    <ListBox Grid.Row="1" ItemsSource="{Binding FilteredLogMessages}" Background="Transparent" BorderThickness="0">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="16">
+                        <!-- Movies List -->
+                        <ListBox ItemsSource="{Binding Movies}" SelectionMode="Single" Background="Transparent" BorderThickness="0"
+                                 SelectedItem="{Binding SelectedMovie, Mode=TwoWay}" PointerReleased="MovieItem_PointerReleased">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+                                        <TextBlock Text="(" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding Year}" Foreground="Gray"/>
+                                        <TextBlock Text=")" Foreground="Gray"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        
+                        <!-- Copied Notification -->
+                        <TextBlock Text="{Binding CopiedNotification}" IsVisible="{Binding CopiedNotificationVisible}" Foreground="{StaticResource SuccessColor}" FontWeight="Bold"/>
+                        <!-- Log Messages List -->
+                        <ListBox ItemsSource="{Binding FilteredLogMessages}" Background="Transparent" BorderThickness="0" PointerReleased="LogItem_PointerReleased">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
                 </Grid>
             </Grid>
 

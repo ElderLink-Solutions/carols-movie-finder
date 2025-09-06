@@ -31,4 +31,10 @@ public class Movie
     public bool IsBorrowed { get; set; }
 
     public string BorrowedBy { get; set; } = string.Empty;
+
+    [JsonProperty("Poster")]
+    public string? Poster { get; set; }
+
+    [JsonProperty("imdbID")]
+    public string? ImdbID { get; set; }
 }

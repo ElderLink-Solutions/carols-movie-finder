@@ -3,7 +3,7 @@ using System.Globalization;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 
-namespace MovieFinder.Converters
+namespace MovieFinder
 {
     public class StatusToColorConverter : IValueConverter
     {

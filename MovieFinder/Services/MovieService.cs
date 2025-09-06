@@ -4,6 +4,7 @@ using MovieFinder.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
+using MovieFinder.Services;
 
 namespace MovieFinder.Services;
 
@@ -12,12 +13,14 @@ public class MovieService
     private readonly HttpClient _httpClient;
     private readonly string _omdbApiKey;
     private readonly string _upcItemDbApiKey;
+    private readonly IAppLogger _logger;
 
-    public MovieService(IConfiguration configuration)
+    public MovieService(IConfiguration configuration, IAppLogger logger)
     {
         _httpClient = new HttpClient();
         _omdbApiKey = configuration["OMDBAPIKEY"] ?? "";
         _upcItemDbApiKey = configuration["UPCITEMDBAPIKEY"] ?? "";
+        _logger = logger;
     }
 
     public async Task<Movie?> FetchMovieDetailsFromBarcode(string barcode)
@@ -37,46 +40,41 @@ public class MovieService
 
     private async Task<JObject?> GetMovieIdentifierFromUpc(string barcode)
     {
-        /*
-        // Note: UPCitemdb has a free tier that doesn't require a key, but it's less reliable.
-        var url = $"https://api.upcitemdb.com/prod/v1/lookup?upc={barcode}";
+        if (string.IsNullOrEmpty(_upcItemDbApiKey))
+        {
+            _logger.Warn("BarcodeSpider API key is missing.");
+            return null;
+        }
 
+        var url = $"https://api.barcodespider.com/v1/lookup?token={_upcItemDbApiKey}&upc={barcode}";
+        _logger.Event($"Barcode fetch submitted: {url}");
+        
         try
         {
             var response = await _httpClient.GetStringAsync(url);
+            _logger.Event($"Barcode fetch results: {response}");
             var data = JObject.Parse(response);
 
-            if (data?["items"] is JArray items && items.Count > 0)
+            if (data?["item_attributes"]?["title"]?.ToString() is string title && !string.IsNullOrEmpty(title))
             {
-                var item = items[0];
                 var identifier = new JObject();
-
-                if (item?["imdb_id"]?.ToString() is string imdbId && !string.IsNullOrEmpty(imdbId))
-                {
-                    identifier["imdb_id"] = imdbId;
-                    return identifier;
-                }
-                if (item?["title"]?.ToString() is string title && !string.IsNullOrEmpty(title))
-                {
-                    identifier["title"] = title;
-                    return identifier;
-                }
+                identifier["title"] = title;
+                return identifier;
             }
         }
         catch (HttpRequestException e)
         {
-            // Handle exceptions (e.g., network errors, invalid JSON)
-            System.Diagnostics.Debug.WriteLine($"UPCitemdb API Error: {e.Message}");
+            _logger.Error($"BarcodeSpider API Error: {e.Message}");
         }
-        */
-        return await Task.FromResult<JObject?>(null);
+        
+        return null;
     }
 
     private async Task<Movie?> GetMovieDetailsFromOmdb(JObject movieIdentifier)
     {
-        if (string.IsNullOrEmpty(_omdbApiKey) || _omdbApiKey == "YOUR_OMDB_API_KEY")
+        if (string.IsNullOrEmpty(_omdbApiKey))
         {
-            System.Diagnostics.Debug.WriteLine("OMDb API key is missing.");
+            _logger.Warn("OMDb API key is missing.");
             return null;
         }
 
@@ -95,19 +93,22 @@ public class MovieService
             return null;
         }
 
+        _logger.Event($"OMDb API fetch submitted: {url}");
         try
         {
             var response = await _httpClient.GetStringAsync(url);
+            _logger.Event($"OMDb API fetch results: {response}");
             var movie = JsonConvert.DeserializeObject<Movie>(response);
 
             if (movie != null && !string.IsNullOrEmpty(movie.Title))
             {
+                movie.Poster = $"http://img.omdbapi.com/?apikey={_omdbApiKey}&i={movie.ImdbID}";
                 return movie;
             }
         }
         catch (HttpRequestException e)
         {
-            System.Diagnostics.Debug.WriteLine($"OMDb API Error: {e.Message}");
+            _logger.Error($"OMDb API Error: {e.Message}");
         }
         return null;
     }

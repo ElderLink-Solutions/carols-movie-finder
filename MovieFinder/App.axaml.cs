@@ -51,7 +51,8 @@ public partial class App : Application
         );
         serviceCollection.AddSingleton<MovieService>(sp =>
             new MovieService(
-                sp.GetRequiredService<IConfiguration>()
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetRequiredService<IAppLogger>()
             )
         );
         serviceCollection.AddTransient<MainWindowViewModel>(sp =>

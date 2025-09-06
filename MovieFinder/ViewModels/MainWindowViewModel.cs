@@ -50,6 +50,15 @@ public partial class MainWindowViewModel : ObservableObject
     public ObservableCollection<string> LogMessages { get; } = new();
     public ObservableCollection<string> FilteredLogMessages { get; } = new();
 
+    [ObservableProperty]
+    private string _copiedNotification = string.Empty;
+
+    [ObservableProperty]
+    private bool _copiedNotificationVisible;
+
+    [ObservableProperty]
+    private Movie? _selectedMovie;
+
     private bool _showKeyEventsOnly;
     public bool ShowKeyEventsOnly
     {
