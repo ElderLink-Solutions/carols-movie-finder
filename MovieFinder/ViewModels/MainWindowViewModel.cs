@@ -106,7 +106,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void OnLogMessageReceived(string message)
     {
-        LogMessages.Add(message);
+        LogMessages.Insert(0, message);
         FilterLogs();
     }
 
