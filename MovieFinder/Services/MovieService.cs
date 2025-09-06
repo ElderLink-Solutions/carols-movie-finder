@@ -3,18 +3,21 @@ using System.Threading.Tasks;
 using MovieFinder.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace MovieFinder.Services;
 
 public class MovieService
 {
     private readonly HttpClient _httpClient;
-    private const string OmdbApiKey = "YOUR_OMDB_API_KEY"; // <-- PASTE YOUR OMDb API KEY HERE
-    private const string UpcItemDbApiKey = "YOUR_UPCITEMDB_API_KEY"; // Optional, but recommended
+    private readonly string _omdbApiKey;
+    private readonly string _upcItemDbApiKey;
 
-    public MovieService()
+    public MovieService(IConfiguration configuration)
     {
         _httpClient = new HttpClient();
+        _omdbApiKey = configuration["OMDBAPIKEY"] ?? "";
+        _upcItemDbApiKey = configuration["UPCITEMDBAPIKEY"] ?? "";
     }
 
     public async Task<Movie?> FetchMovieDetailsFromBarcode(string barcode)
@@ -37,7 +40,7 @@ public class MovieService
         /*
         // Note: UPCitemdb has a free tier that doesn't require a key, but it's less reliable.
         var url = $"https://api.upcitemdb.com/prod/v1/lookup?upc={barcode}";
-        
+
         try
         {
             var response = await _httpClient.GetStringAsync(url);
@@ -71,8 +74,7 @@ public class MovieService
 
     private async Task<Movie?> GetMovieDetailsFromOmdb(JObject movieIdentifier)
     {
-        /*
-        if (string.IsNullOrEmpty(OmdbApiKey) || OmdbApiKey == "YOUR_OMDB_API_KEY")
+        if (string.IsNullOrEmpty(_omdbApiKey) || _omdbApiKey == "YOUR_OMDB_API_KEY")
         {
             System.Diagnostics.Debug.WriteLine("OMDb API key is missing.");
             return null;
@@ -81,13 +83,13 @@ public class MovieService
         string? url = null;
         if (movieIdentifier?["imdb_id"]?.ToString() is string imdbId)
         {
-            url = $"http://www.omdbapi.com/?apikey={OmdbApiKey}&i={imdbId}";
+            url = $"http://www.omdbapi.com/?apikey={_omdbApiKey}&i={imdbId}";
         }
         else if (movieIdentifier?["title"]?.ToString() is string title)
         {
-            url = $"http://www.omdbapi.com/?apikey={OmdbApiKey}&t={title}";
+            url = $"http://www.omdbapi.com/?apikey={_omdbApiKey}&t={title}";
         }
-        
+
         if (url is null)
         {
             return null;
@@ -107,7 +109,6 @@ public class MovieService
         {
             System.Diagnostics.Debug.WriteLine($"OMDb API Error: {e.Message}");
         }
-        */
-        return await Task.FromResult<Movie?>(null);
+        return null;
     }
 }
