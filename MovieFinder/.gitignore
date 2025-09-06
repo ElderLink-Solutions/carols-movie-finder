@@ -1,2 +1,3 @@
-app.log
+OutLogs/app.log
 appsettings.json
+OutLogs/movies.db3
