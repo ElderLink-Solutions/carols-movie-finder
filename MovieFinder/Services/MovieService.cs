@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
 using MovieFinder.Services;
+using System.Net;
 
 namespace MovieFinder.Services;
 
@@ -85,7 +86,14 @@ public class MovieService
         }
         else if (movieIdentifier?["title"]?.ToString() is string title)
         {
-            url = $"http://www.omdbapi.com/?apikey={_omdbApiKey}&t={title}";
+            var blacklistedTerms = new[] { "[Double Sided]" };
+            foreach (var term in blacklistedTerms)
+            {
+                title = title.Replace(term, "");
+            }
+            title = title.Trim();
+            var encodedTitle = WebUtility.UrlEncode(title);
+            url = $"http://www.omdbapi.com/?apikey={_omdbApiKey}&t={encodedTitle}";
         }
 
         if (url is null)
