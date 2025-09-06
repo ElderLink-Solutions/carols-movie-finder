@@ -76,10 +76,10 @@ public partial class App : Application
                 DataContext = Services.GetRequiredService<MainWindowViewModel>()
             };
 
-            desktop.Exit += (sender, e) =>
+            desktop.Exit += async (sender, e) =>
             {
                 var barcodeService = Services.GetRequiredService<BarcodeService>();
-                barcodeService.StopReadingBarcodes();
+                await barcodeService.StopReadingBarcodesAsync();
                 logger.Log("=== MovieFinder Program.cs: Main completed successfully ===");
                 (Services.GetRequiredService<IAppLogger>() as IDisposable)?.Dispose();
             };

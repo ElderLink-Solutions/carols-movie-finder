@@ -10,7 +10,12 @@
         x:DataType="vm:MainWindowViewModel"
         Title="MovieFinder"
         SystemDecorations="None"
-        WindowState="Maximized"
+        Width="800"
+        Height="600"
+        MinWidth="400"
+        MinHeight="300"
+        CanResize="True"
+        WindowState="Normal"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur">
 

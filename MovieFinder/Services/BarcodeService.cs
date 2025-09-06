@@ -140,13 +140,16 @@ public class BarcodeService
         _logger.Log($"Started listening for barcodes on thread {_barcodeReaderTask.Id}.");
     }
 
-    public void StopReadingBarcodes()
+    public async Task StopReadingBarcodesAsync()
     {
         if (_cancellationTokenSource != null)
         {
             _logger.Log($"Sending shutdown signal to barcode reader thread {_barcodeReaderTask?.Id}.");
             _cancellationTokenSource.Cancel();
-            _barcodeReaderTask?.Wait();
+            if (_barcodeReaderTask != null)
+            {
+                await _barcodeReaderTask;
+            }
             _logger.Log($"Barcode reader thread {_barcodeReaderTask?.Id} has gracefully shut down.");
         }
     }
