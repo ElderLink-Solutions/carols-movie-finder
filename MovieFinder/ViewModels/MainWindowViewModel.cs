@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -46,14 +47,18 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     public ObservableCollection<Movie> Movies { get; } = new();
+    public ObservableCollection<string> LogMessages { get; } = new();
+    public ObservableCollection<string> FilteredLogMessages { get; } = new();
 
-    [RelayCommand]
-    private void OpenDebugWindow()
+    private bool _showKeyEventsOnly;
+    public bool ShowKeyEventsOnly
     {
-        _logger?.Log("Debug Window button pressed.");
-        BarcodeScannerStatus = "Button Pressed: Debug Window";
-        // This will be implemented in the MainWindow code-behind to open the debug window.
-        // The command is exposed for binding in XAML.
+        get => _showKeyEventsOnly;
+        set
+        {
+            SetProperty(ref _showKeyEventsOnly, value);
+            FilterLogs();
+        }
     }
 
     // This constructor is used by the XAML designer.
@@ -67,6 +72,12 @@ public partial class MainWindowViewModel : ObservableObject
         _barcodeService = barcodeService;
         _movieService = movieService;
         _logger = logger;
+
+        if (_logger is AppLogger appLogger)
+        {
+            appLogger.OnLogMessage += OnLogMessageReceived;
+        }
+
         LoadMovies().ConfigureAwait(false);
 
         _logger?.Log("Starting application");
@@ -94,9 +105,25 @@ public partial class MainWindowViewModel : ObservableObject
         CsvFilePath = "/var/log/MovieFinder.csv";
     }
 
+    private void OnLogMessageReceived(string message)
+    {
+        LogMessages.Add(message);
+        FilterLogs();
+    }
+
+    private void FilterLogs()
+    {
+        FilteredLogMessages.Clear();
+        var logs = ShowKeyEventsOnly ? LogMessages.Where(m => m.Contains("[EVENT]")) : LogMessages;
+        foreach (var log in logs)
+        {
+            FilteredLogMessages.Add(log);
+        }
+    }
+
     private async void OnBarcodeScanned(string barcode)
     {
-        _logger?.Log($"Barcode Scanned: {barcode}");
+        _logger?.Event($"Barcode Scanned: {barcode}");
         if (_movieService == null)
         {
             _logger?.Log("MovieService is not initialized.");
@@ -108,7 +135,7 @@ public partial class MainWindowViewModel : ObservableObject
         {
             Movies.Clear();
             Movies.Add(movie);
-            _logger?.Log($"Found movie: {movie.Title}");
+            _logger?.Event($"Found movie: {movie.Title}");
         }
         else
         {

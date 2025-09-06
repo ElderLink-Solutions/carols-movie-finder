@@ -7,6 +7,7 @@ namespace MovieFinder.Services;
 
 public class AppLogger : IAppLogger, IDisposable
 {
+    public event Action<string>? OnLogMessage;
     private Action<string>? _logAction;
     private readonly IConfiguration _configuration;
     private readonly StreamWriter? _logWriter;
@@ -56,6 +57,11 @@ public class AppLogger : IAppLogger, IDisposable
         Log(LogLevel.Error, message);
     }
 
+    public void Event(string message)
+    {
+        Log(LogLevel.Event, message);
+    }
+
     public void Trace(string message)
     {
         Log(LogLevel.Trace, message);
@@ -68,12 +74,13 @@ public class AppLogger : IAppLogger, IDisposable
 
     private void Log(LogLevel level, string message)
     {
-        if (level < _minLogLevel)
+        if (level < _minLogLevel && level != LogLevel.Event)
         {
             return;
         }
 
         var logMessage = $"[{level.ToString().ToUpper()}] {message}";
+        OnLogMessage?.Invoke(logMessage);
         _logAction?.Invoke(logMessage);
         _logWriter?.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {logMessage}");
     }
@@ -84,11 +91,4 @@ public class AppLogger : IAppLogger, IDisposable
     }
 }
 
-public enum LogLevel
-{
-    Trace,
-    Debug,
-    Information,
-    Warning,
-    Error
-}
+
