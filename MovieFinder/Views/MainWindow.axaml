@@ -4,12 +4,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:MovieFinder.ViewModels"
         xmlns:models="using:MovieFinder.Models"
+        xmlns:converters="using:MovieFinder.Converters"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="MovieFinder.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-
-        <!-- Core Window Settings for a Modern Look -->
         Title="MovieFinder"
         SystemDecorations="None"
         WindowState="Maximized"
@@ -17,14 +15,11 @@
         TransparencyLevelHint="AcrylicBlur">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE -->
-        <!-- We'll create some sample data to make the design look good -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <!-- Define the Theme and Global Styles Here -->
-    <Window.Styles>
-        <!-- Define our Purple Color Palette -->
+    <Window.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <SolidColorBrush x:Key="PrimaryBackground" Color="#1E1B2E"/>
         <SolidColorBrush x:Key="SecondaryBackground" Color="#2A273F"/>
         <SolidColorBrush x:Key="PrimaryForeground" Color="#E0DDEF"/>
@@ -32,14 +27,14 @@
         <SolidColorBrush x:Key="BorderColor" Color="#4A475F"/>
         <SolidColorBrush x:Key="SuccessColor" Color="#2CB67D"/>
         <SolidColorBrush x:Key="ErrorColor" Color="#EF4565"/>
+    </Window.Resources>
 
-        <!-- Global Style for all TextBlocks -->
+    <Window.Styles>
         <Style Selector="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- Global Style for all Buttons -->
         <Style Selector="Button">
             <Setter Property="Background" Value="{StaticResource AccentColor}"/>
             <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
@@ -53,7 +48,6 @@
             <Setter Property="Background" Value="#9270F8"/>
         </Style>
 
-        <!-- Global Style for all TextBoxes -->
         <Style Selector="TextBox">
             <Setter Property="Background" Value="{StaticResource SecondaryBackground}"/>
             <Setter Property="Foreground" Value="{StaticResource PrimaryForeground}"/>
@@ -65,30 +59,28 @@
         </Style>
     </Window.Styles>
 
-    <!-- Main Window Content with a background and rounded corners -->
     <Border Background="{StaticResource PrimaryBackground}"
             CornerRadius="12"
             Padding="0">
 
         <Grid RowDefinitions="Auto, *, Auto">
 
-            <!-- ROW 0: Custom Title Bar / Window Chrome -->
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="#2A273F" PointerPressed="BeginMoveDrag">
                 <TextBlock Grid.Column="0" Text="Carol's Movie Finder" FontWeight="Bold" Margin="16,0"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <StackPanel.Styles>
+                        <Style Selector="Button:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="#4A475F"/>
+                        </Style>
+                    </StackPanel.Styles>
                     <Button Content="—" Click="MinimizeWindow" Background="Transparent" Width="40"/>
                     <Button Content="☐" Click="MaximizeWindow" Background="Transparent" Width="40"/>
                     <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40"/>
-                    <Style Selector="Button:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#4A475F"/>
-                    </Style>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 1: Main Content Area -->
             <Grid Grid.Row="1" Margin="24" RowDefinitions="Auto, *">
 
-                <!-- Top Section: Status and Search -->
                 <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,20">
                     <Border Grid.Column="0"
                             BorderBrush="{Binding BarcodeScannerStatus, Converter={StaticResource StatusToColorConverter}}"
@@ -105,11 +97,9 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- Movies List Section -->
                 <ListBox Grid.Row="1" ItemsSource="{Binding Movies}" Background="Transparent" BorderThickness="0">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="models:Movie">
-                            <!-- Each movie item has a modern card look -->
                             <Border Background="{StaticResource SecondaryBackground}"
                                     CornerRadius="8"
                                     Padding="16"
@@ -127,11 +117,9 @@
                 </ListBox>
             </Grid>
 
-            <!-- ROW 2: Bottom Action Bar -->
             <Border Grid.Row="2" Background="{StaticResource SecondaryBackground}" Padding="16">
                 <Button Content="Add New Movie" HorizontalAlignment="Right"/>
             </Border>
         </Grid>
     </Border>
 </Window>
-
