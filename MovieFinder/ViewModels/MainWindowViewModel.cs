@@ -93,7 +93,6 @@ public partial class MainWindowViewModel : ObservableObject
         {
             var deviceInfo = _barcodeService.GetDeviceInfo();
             _logger?.Log($"FOUND - SN: {deviceInfo?.SerialNumber}");
-            _barcodeService.StartReadingBarcodes(); // Start reading after successful connection
         }
         else
         {
@@ -174,8 +173,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         _logger?.Log("Add New Movie button pressed.");
         BarcodeScannerStatus = "Button Pressed: Add New Movie";
-        // TODO: Implement logic to add a new movie (show dialog, etc.)
-        // For now, just a placeholder
+        _barcodeService?.StartReadingBarcodes();
     }
 
     private async Task LoadMovies()
