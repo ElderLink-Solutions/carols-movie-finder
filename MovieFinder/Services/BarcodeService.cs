@@ -148,12 +148,19 @@ public class BarcodeService
             _cancellationTokenSource.Cancel();
             if (_barcodeReaderTask != null)
             {
-                await _barcodeReaderTask;
+                try
+                {
+                    await _barcodeReaderTask;
+                }
+                catch (TaskCanceledException)
+                {
+                    _logger.Log("Barcode reader task canceled on shutdown.");
+                }
             }
             _logger.Log($"Barcode reader thread {_barcodeReaderTask?.Id} has gracefully shut down.");
         }
     }
-    
+
     private static readonly Dictionary<byte, char> HidScanCodeMap = new()
     {
         { 0x1E, '1' }, { 0x1F, '2' }, { 0x20, '3' }, { 0x21, '4' }, { 0x22, '5' },
@@ -213,13 +220,17 @@ public class BarcodeService
                 else if (errorCode != ErrorCode.IoTimedOut)
                 {
                     _logger.Log($"USB Read Error: {errorCode}.");
-                    break; 
+                    break;
                 }
             }
         }
+        catch (OperationCanceledException)
+        {
+            _logger.Log("Barcode reading loop canceled.");
+        }
         catch (Exception ex)
         {
-            _logger.Error($"Error in barcode reading loop: {ex.ToString()}");
+            _logger.Error($"Error in barcode reading loop: {ex}");
         }
         finally
         {

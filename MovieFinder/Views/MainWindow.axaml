@@ -69,7 +69,7 @@
             CornerRadius="12"
             Padding="0">
 
-        <Grid RowDefinitions="Auto, Auto, *">
+        <Grid RowDefinitions="Auto, *, Auto">
 
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="#2A273F" PointerPressed="BeginMoveDrag">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="20" Margin="16,0">
@@ -87,24 +87,8 @@
                     <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40"/>
                 </StackPanel>
             </Grid>
-<Grid Grid.Row="1" Margin="24">
-        <!-- Barcode Scanner Status Section -->
-        <Border DockPanel.Dock="Top" Background="Salmon" CornerRadius="6" Padding="8" Margin="0,10,0,10">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="Barcode Scanner Status:" FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding BarcodeScannerStatus}" FontWeight="Bold" VerticalAlignment="Center"/>
-            </StackPanel>
-        </Border>
 
-        <!-- Search Section -->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10">
-            <TextBlock Text="Search Movies:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <TextBox Text="{Binding SearchQuery}" Watermark="Search for a movie..." Width="300"/>
-            <Button Command="{Binding SearchMoviesCommand}" Content="Search"/>
-        </StackPanel>
-        </Grid>
-
-            <Grid Grid.Row="2" Margin="24">
+            <Grid Grid.Row="1" Margin="24">
                 <Grid ColumnDefinitions="2*, *">
                     <!-- Movies List -->
                     <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="16">
@@ -137,7 +121,7 @@
                 </Grid>
             </Grid>
 
-            <Border Grid.Row="3" Background="{StaticResource SecondaryBackground}" Padding="16">
+            <Border Grid.Row="2" Background="{StaticResource SecondaryBackground}" Padding="16">
                 <Button Content="Add New Movie" HorizontalAlignment="Right" Command="{Binding AddNewMovieCommand}"/>
             </Border>
         </Grid>
