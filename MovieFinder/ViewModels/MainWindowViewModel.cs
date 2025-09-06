@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MovieFinder.Models;
 using MovieFinder.Services;
+using MovieFinder.Views;
 
 namespace MovieFinder.ViewModels;
 
@@ -59,7 +60,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private Movie? _selectedMovie;
 
-    private bool _showKeyEventsOnly;
+    private bool _showKeyEventsOnly = true;
     public bool ShowKeyEventsOnly
     {
         get => _showKeyEventsOnly;
@@ -144,6 +145,35 @@ public partial class MainWindowViewModel : ObservableObject
             Movies.Clear();
             Movies.Add(movie);
             _logger?.Event($"Found movie: {movie.Title}");
+
+            // Open the MovieDetailWindow
+            var movieDetailViewModel = new MovieDetailWindowViewModel(movie);
+            var movieDetailWindow = new MovieDetailWindow
+            {
+                DataContext = movieDetailViewModel
+            };
+
+            // Show the window and wait for a result, only if owner is not null
+            bool? result = null;
+            if (App.CurrentMainWindow != null)
+            {
+                result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
+            }
+            else
+            {
+                result = await movieDetailWindow.ShowDialog<bool?>(null);
+            }
+
+            if (result == true) // Save button was clicked
+            {
+                // Update the database
+                if (_database != null)
+                {
+                    await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
+                    _logger?.Event($"Database updated, ID: {movie.Id}");
+                }
+            }
+            _barcodeService?.StopReadingBarcodesAsync(); // Stop the scanner here
         }
         else
         {
@@ -180,9 +210,8 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void AddNewMovie()
     {
-        _logger?.Log("Add New Movie button pressed.");
-        BarcodeScannerStatus = "Button Pressed: Add New Movie";
-        _barcodeService?.StartReadingBarcodes();
+        _logger?.Event("Add New Movie button pressed.");
+             _barcodeService?.StartReadingBarcodes();
     }
 
     private async Task LoadMovies()

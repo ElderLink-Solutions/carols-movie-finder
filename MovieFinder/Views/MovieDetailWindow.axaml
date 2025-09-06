@@ -1,0 +1,25 @@
+<!-- Views/MovieDetailWindow.axaml -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:MovieFinder.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
+        x:Class="MovieFinder.Views.MovieDetailWindow"
+        x:DataType="vm:MovieDetailWindowViewModel"
+        Title="Movie Details">
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, *" Margin="10">
+        <TextBlock Grid.Row="0" Text="Movie Details" FontWeight="Bold" FontSize="18"/>
+
+        <TextBlock Grid.Row="1" Text="Shelf Location:"/>
+        <TextBox Grid.Row="2" Text="{Binding ShelfLocation}"/>
+
+        <TextBlock Grid.Row="3" Text="Borrowed By:"/>
+        <TextBox Grid.Row="4" Text="{Binding BorrowedBy}"/>
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Save" Command="{Binding SaveCommand}"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="10,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>

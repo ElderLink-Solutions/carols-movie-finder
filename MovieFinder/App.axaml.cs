@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ namespace MovieFinder;
 public partial class App : Application
 {
     public static IServiceProvider? Services { get; private set; }
+    public static Window? CurrentMainWindow { get; private set; }
 
     public override void Initialize()
     {
@@ -80,6 +82,7 @@ public partial class App : Application
             {
                 DataContext = Services.GetRequiredService<MainWindowViewModel>()
             };
+            CurrentMainWindow = desktop.MainWindow;
 
             desktop.Exit += async (sender, e) =>
             {
