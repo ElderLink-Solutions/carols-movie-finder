@@ -8,6 +8,10 @@ public class Movie
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
+    [Unique]
+    [JsonProperty("imdbID")]
+    public string? ImdbID { get; set; }
+
     [JsonProperty("Title")]
     public string? Title { get; set; }
 
@@ -40,7 +44,4 @@ public class Movie
 
     [JsonProperty("Poster")]
     public string? Poster { get; set; }
-
-    [JsonProperty("imdbID")]
-    public string? ImdbID { get; set; }
 }

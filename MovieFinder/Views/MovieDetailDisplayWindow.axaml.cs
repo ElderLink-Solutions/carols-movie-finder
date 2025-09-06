@@ -31,7 +31,7 @@ public partial class MovieDetailDisplayWindow : Window
                     };
                     jsonWindow.ShowDialog(this);
                 };
-                vm.CloseRequested = () => Close(); 
+                vm.CloseRequested = (result) => Close(result); 
             }
         };
     }

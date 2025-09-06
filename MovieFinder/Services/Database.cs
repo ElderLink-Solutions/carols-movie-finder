@@ -27,14 +27,8 @@ public class Database
 
     public Task<int> SaveMovieAsync(Movie movie)
     {
-        if (movie.Id != 0)
-        {
-            return _database.UpdateAsync(movie);
-        }
-        else
-        {
-            return _database.InsertAsync(movie);
-        }
+        // Upsert: Insert or replace based on unique ImdbID
+        return _database.InsertOrReplaceAsync(movie);
     }
 
     public Task<int> DeleteMovieAsync(Movie movie)

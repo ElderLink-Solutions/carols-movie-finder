@@ -9,8 +9,10 @@ namespace MovieFinder.ViewModels;
 
 public partial class MovieDetailWindowViewModel : ObservableObject
 {
-    public Action? CloseRequested { get; set; }
+    public Action<bool>? CloseRequested { get; set; }
     public Action<string>? OpenFullJsonDetailsRequested { get; set; }
+    public Movie Movie { get; }
+
     [ObservableProperty]
     private string? _title;
 
@@ -41,8 +43,15 @@ public partial class MovieDetailWindowViewModel : ObservableObject
     [ObservableProperty]
     private string? _fullJsonOutput;
 
+    [ObservableProperty]
+    private string _shelfLocation = string.Empty;
+
+    [ObservableProperty]
+    private string _borrowedBy = string.Empty;
+
     public MovieDetailWindowViewModel(Movie movie, JObject? fullOmdbJson = null)
     {
+        Movie = movie; // Assign the movie object
         Title = movie.Title;
         Year = movie.Year;
         Genre = movie.Genre;
@@ -51,6 +60,8 @@ public partial class MovieDetailWindowViewModel : ObservableObject
         Plot = movie.Plot;
         ImdbRating = movie.ImdbRating;
         Runtime = movie.Runtime;
+        ShelfLocation = movie.ShelfLocation ?? string.Empty; // Initialize from movie
+        BorrowedBy = movie.BorrowedBy ?? string.Empty; // Initialize from movie
 
         if (!string.IsNullOrEmpty(movie.Poster))
         {
@@ -70,5 +81,19 @@ public partial class MovieDetailWindowViewModel : ObservableObject
         {
             OpenFullJsonDetailsRequested?.Invoke(FullJsonOutput);
         }
+    }
+
+    [RelayCommand]
+    private void Save()
+    {
+        Movie.ShelfLocation = ShelfLocation;
+        Movie.BorrowedBy = BorrowedBy;
+        CloseRequested?.Invoke(true);
+    }
+
+    [RelayCommand]
+    private void Cancel()
+    {
+        CloseRequested?.Invoke(false);
     }
 }

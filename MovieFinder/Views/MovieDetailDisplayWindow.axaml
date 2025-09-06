@@ -49,6 +49,9 @@
         <Style Selector="Button:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#9270F8"/>
         </Style>
+        <Style Selector="Button.close-button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4A475F"/>
+        </Style>
 
         <Style Selector="TextBox">
             <Setter Property="Background" Value="{StaticResource SecondaryBackground}"/>
@@ -72,10 +75,7 @@
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="#2A273F" PointerPressed="BeginMoveDrag">
                 <TextBlock Grid.Column="0" Text="{Binding Title}" FontWeight="Bold" Margin="16,0"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40"/>
-                    <Style Selector="Button:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#4A475F"/>
-                    </Style>
+                    <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40" Classes="close-button"/>
                 </StackPanel>
             </Grid>
 
@@ -111,6 +111,12 @@
                         <TextBlock Grid.Column="1" Text="{Binding Runtime}"/>
                     </Grid>
 
+                    <TextBlock Text="Shelf Location:" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                    <TextBox Text="{Binding ShelfLocation}" Watermark="e.g., Shelf A, Row 2"/>
+
+                    <TextBlock Text="Borrowed By:" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                    <TextBox Text="{Binding BorrowedBy}" Watermark="Enter name or leave blank"/>
+
                     <!-- Poster Section -->
                     <TextBlock Text="Poster:" FontWeight="SemiBold" Margin="0,10,0,0"/>
                     <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="10"
@@ -125,8 +131,9 @@
 
             <!-- ROW 2: Bottom Action Bar (Optional, can be removed if no actions) -->
             <Border Grid.Row="2" Background="{StaticResource SecondaryBackground}" Padding="16">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Close" Click="CloseWindow"/>
+                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" Classes="cancel"/>
+                    <Button Content="Save" Command="{Binding SaveCommand}"/>
                 </StackPanel>
             </Border>
         </Grid>
