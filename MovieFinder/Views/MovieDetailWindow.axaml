@@ -49,6 +49,9 @@
         <Style Selector="Button:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#9270F8"/>
         </Style>
+        <Style Selector="Button.close-button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4A475F"/>
+        </Style>
         <Style Selector="Button.cancel">
              <Setter Property="Background" Value="{StaticResource BorderColor}"/>
         </Style>
@@ -79,10 +82,8 @@
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="#2A273F" PointerPressed="BeginMoveDrag">
                 <TextBlock Grid.Column="0" Text="Movie Details" FontWeight="Bold" Margin="16,0"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                     <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40"/>
-                     <Style Selector="Button:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#4A475F"/>
-                    </Style>
+                     <Button Content="✕" Click="CloseWindow" Background="Transparent" Width="40" Classes="close-button"/>
+                     
                 </StackPanel>
             </Grid>
 

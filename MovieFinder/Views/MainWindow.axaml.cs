@@ -15,27 +15,19 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    // Handler for clicking on a movie item to copy its info and show notification
     public async void MovieItem_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)
     {
-        if (DataContext is MovieFinder.ViewModels.MainWindowViewModel vm && sender is Avalonia.Controls.ListBox listBox)
+        if (DataContext is MovieFinder.ViewModels.MainWindowViewModel vm && sender is Avalonia.Controls.ListBox listBox && listBox.SelectedItem is MovieFinder.Models.Movie movie)
         {
-            if (listBox.SelectedItem is MovieFinder.Models.Movie movie)
+            var movieDetailViewModel = new MovieFinder.ViewModels.MovieDetailWindowViewModel(movie);
+            var movieDetailWindow = new MovieFinder.Views.MovieDetailWindow
             {
-                // Copy movie title (or customize as needed)
-                var textToCopy = $"{movie.Title} ({movie.Year})";
-                if (this.Clipboard != null)
-                {
-                    await this.Clipboard.SetTextAsync(textToCopy);
-                }
-
-                // Show notification
-                vm.CopiedNotification = "Copied!";
-                vm.CopiedNotificationVisible = true;
-                await System.Threading.Tasks.Task.Delay(1200);
-                vm.CopiedNotification = "";
-                vm.CopiedNotificationVisible = false;
-            }
+                DataContext = movieDetailViewModel
+            };
+            if (App.CurrentMainWindow != null)
+                await movieDetailWindow.ShowDialog(App.CurrentMainWindow);
+            else
+                await movieDetailWindow.ShowDialog(this);
         }
     }
 
