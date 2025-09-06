@@ -81,52 +81,57 @@
 
             <!-- ROW 1: Main Content Area -->
             <ScrollViewer Grid.Row="1" Margin="24">
-                <StackPanel Spacing="10">
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                        <TextBlock Grid.Column="0" Text="Year:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Year}"/>
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                        <TextBlock Grid.Column="0" Text="Genre:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Genre}"/>
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                        <TextBlock Grid.Column="0" Text="Director:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Director}"/>
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                        <TextBlock Grid.Column="0" Text="Actors:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Actors}"/>
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                        <TextBlock Grid.Column="0" Text="Plot:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Plot}" TextWrapping="Wrap"/>
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                        <TextBlock Grid.Column="0" Text="IMDb Rating:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="{Binding ImdbRating}"/>
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                        <TextBlock Grid.Column="0" Text="Runtime:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="{Binding Runtime}"/>
-                    </Grid>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                    <!-- Main Details (Left) -->
+                    <StackPanel Grid.Column="0" Spacing="10">
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="Year:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Year}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="Genre:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Genre}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="Director:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Director}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="Actors:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Actors}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="Plot:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Plot}" TextWrapping="Wrap"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="IMDb Rating:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ImdbRating}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="Runtime:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Runtime}"/>
+                        </Grid>
 
-                    <TextBlock Text="Shelf Location:" FontWeight="SemiBold" Margin="0,10,0,0"/>
-                    <TextBox Text="{Binding ShelfLocation}" Watermark="e.g., Shelf A, Row 2"/>
+                        <TextBlock Text="Shelf Location:" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                        <TextBox Text="{Binding ShelfLocation}" Watermark="e.g., Shelf A, Row 2"/>
 
-                    <TextBlock Text="Borrowed By:" FontWeight="SemiBold" Margin="0,10,0,0"/>
-                    <TextBox Text="{Binding BorrowedBy}" Watermark="Enter name or leave blank"/>
+                        <TextBlock Text="Borrowed By:" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                        <TextBox Text="{Binding BorrowedBy}" Watermark="Enter name or leave blank"/>
 
-                    <!-- Poster Section -->
-                    <TextBlock Text="Poster:" FontWeight="SemiBold" Margin="0,10,0,0"/>
-                    <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="10"
-                            HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <TextBlock Text="{Binding Poster}" TextWrapping="Wrap" MaxWidth="200"/>
-                    </Border>
+                        <!-- Full JSON Details Button -->
+                        <Button Content="View Full JSON" Command="{Binding OpenFullJsonDetailsCommand}" Margin="0,10,0,0"/>
+                    </StackPanel>
 
-                    <!-- Full JSON Details Button -->
-                    <Button Content="View Full JSON" Command="{Binding OpenFullJsonDetailsCommand}" Margin="0,10,0,0"/>
-                </StackPanel>
+                    <!-- Poster (Right) -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right">
+                        <TextBlock Text="Poster:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="4"
+                                HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Image Source="{Binding Poster}" Width="180" Height="270" Stretch="UniformToFill"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </ScrollViewer>
 
             <!-- ROW 2: Bottom Action Bar (Optional, can be removed if no actions) -->

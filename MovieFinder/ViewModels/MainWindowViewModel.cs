@@ -244,35 +244,10 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AddNewMovie()
+    private void AddNewMovie()
     {
         _logger?.Event("Add New Movie button pressed.");
-        var newMovie = new Movie(); // Create a new Movie object
-        var movieDetailViewModel = new MovieDetailWindowViewModel(newMovie);
-        var movieDetailWindow = new MovieDetailDisplayWindow
-        {
-            DataContext = movieDetailViewModel
-        };
-
-        bool? result = null;
-        if (App.CurrentMainWindow != null)
-        {
-            result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
-        }
-        else
-        {
-            result = await movieDetailWindow.ShowDialog<bool?>(null);
-        }
-
-        if (result == true) // Save button was clicked
-        {
-            if (_database != null)
-            {
-                await _database.SaveMovieAsync(newMovie);
-                _logger?.Event($"New movie added, ID: {newMovie.Id}");
-                await LoadMovies(); // Reload movies to show the new one
-            }
-        }
+        _barcodeService?.StartReadingBarcodes();
     }
 
     private async Task LoadMovies()
