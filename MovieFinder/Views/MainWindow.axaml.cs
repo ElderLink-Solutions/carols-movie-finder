@@ -20,7 +20,7 @@ public partial class MainWindow : Window
         if (DataContext is MovieFinder.ViewModels.MainWindowViewModel vm && sender is Avalonia.Controls.ListBox listBox && listBox.SelectedItem is MovieFinder.Models.Movie movie)
         {
             var movieDetailViewModel = new MovieFinder.ViewModels.MovieDetailWindowViewModel(movie);
-            var movieDetailWindow = new MovieFinder.Views.MovieDetailWindow
+            var movieDetailWindow = new MovieFinder.Views.AddMovieFormWindow
             {
                 DataContext = movieDetailViewModel
             };

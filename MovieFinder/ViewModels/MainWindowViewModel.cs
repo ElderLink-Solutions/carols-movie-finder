@@ -184,7 +184,7 @@ public partial class MainWindowViewModel : ObservableObject
                 Movies.Add(movie);
 
                 var movieDetailViewModel = new MovieAddMovieFormViewModel(movie);
-                var movieDetailWindow = new MovieDetailWindow
+                var movieDetailWindow = new AddMovieFormWindow
                 {
                     DataContext = movieDetailViewModel
                 };

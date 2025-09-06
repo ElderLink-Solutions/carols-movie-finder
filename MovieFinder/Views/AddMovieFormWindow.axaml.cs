@@ -4,9 +4,9 @@ using MovieFinder.ViewModels;
 
 namespace MovieFinder.Views;
 
-public partial class MovieDetailWindow : Window
+public partial class AddMovieFormWindow : Window
 {
-    public MovieDetailWindow()
+    public AddMovieFormWindow()
     {
         InitializeComponent();
         this.DataContextChanged += (sender, args) =>
@@ -23,7 +23,7 @@ public partial class MovieDetailWindow : Window
     {
         BeginMoveDrag(e);
     }
-    
+
     // The Close button in the custom title bar can just call the window's Close method
     private void CloseWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
