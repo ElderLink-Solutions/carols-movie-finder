@@ -68,7 +68,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (value != null)
         {
             // Open MovieDetailDisplayWindow
-            Dispatcher.UIThread.InvokeAsync(async () =>
+            _ = Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 if (value.ImdbID != null)
                 {
@@ -83,7 +83,10 @@ public partial class MainWindowViewModel : ObservableObject
                         {
                             DataContext = movieDetailDisplayViewModel
                         };
-                        await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow);
+                        if (App.CurrentMainWindow != null)
+                            await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow);
+                        else
+                            await movieDetailDisplayWindow.ShowDialog(null);
                     }
                 }
             });
@@ -175,7 +178,7 @@ public partial class MainWindowViewModel : ObservableObject
             _logger?.Event($"Found movie: {movie.Title}");
 
             // Open the MovieDetailWindow
-            Dispatcher.UIThread.InvokeAsync(async () =>
+            _ = Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 Movies.Clear();
                 Movies.Add(movie);
@@ -191,6 +194,10 @@ public partial class MainWindowViewModel : ObservableObject
                 if (App.CurrentMainWindow != null)
                 {
                     result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
+                }
+                else
+                {
+                    result = await movieDetailWindow.ShowDialog<bool?>(null);
                 }
 
                 if (result == true) // Save button was clicked
@@ -240,7 +247,7 @@ public partial class MainWindowViewModel : ObservableObject
     private void AddNewMovie()
     {
         _logger?.Event("Add New Movie button pressed.");
-             _barcodeService?.StartReadingBarcodes();
+        _barcodeService?.StartReadingBarcodes();
     }
 
     private async Task LoadMovies()
