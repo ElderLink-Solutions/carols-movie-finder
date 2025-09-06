@@ -16,7 +16,7 @@ public partial class MainWindow : Window
 
     private void OpenDebugWindow(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
-        if (DataContext is MainWindowViewModel vm)
+        if (DataContext is MainWindowViewModel vm && vm.BarcodeService is not null)
         {
             var logger = App.Services?.GetRequiredService<IAppLogger>();
             var debugWindowViewModel = new DebugWindowViewModel(vm.BarcodeService, logger);

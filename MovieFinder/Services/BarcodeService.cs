@@ -183,7 +183,7 @@ public class BarcodeService
                 }
                 else // Other errors
                 {
-                    _logger.Log($"USB Read Error: {errorCode}");
+                    _logger.Log($"USB Read Error: {errorCode}. Bytes read: {bytesRead}");
                     _logger.Log("Exiting barcode reading loop due to error."); // Log exit reason
                     break; // Exit loop on critical error
                 }
@@ -191,7 +191,7 @@ public class BarcodeService
         }
         catch (Exception ex)
         {
-            _logger.Error($"Error in barcode reading loop: {ex.Message}");
+            _logger.Error($"Error in barcode reading loop: {ex.ToString()}");
         }
         finally
         {

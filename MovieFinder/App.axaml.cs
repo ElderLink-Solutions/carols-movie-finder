@@ -28,6 +28,10 @@ public partial class App : Application
             .Build();
 
         var dbPath = configuration["DB_STORAGE"];
+        if (string.IsNullOrEmpty(dbPath))
+        {
+            throw new Exception("DB_STORAGE not configured in appsettings.json");
+        }
 
         var dbDirectory = Path.GetDirectoryName(dbPath);
         if (!string.IsNullOrEmpty(dbDirectory))
