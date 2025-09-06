@@ -128,7 +128,7 @@
                         <TextBlock Text="Poster:" FontWeight="SemiBold" Margin="0,0,0,8"/>
                         <Border BorderBrush="{StaticResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="4"
                                 HorizontalAlignment="Right" VerticalAlignment="Top">
-                            <Image Source="{Binding Poster}" Width="180" Height="270" Stretch="UniformToFill"/>
+                            <Image Source="{Binding PosterImage}" Width="180" Height="270" Stretch="UniformToFill"/>
                         </Border>
                     </StackPanel>
                 </Grid>

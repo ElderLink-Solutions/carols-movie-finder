@@ -44,4 +44,6 @@ public class Movie
 
     [JsonProperty("Poster")]
     public string? Poster { get; set; }
+
+    public string? RawOmdbJson { get; set; } // Added for storing raw OMDB JSON
 }

@@ -73,12 +73,8 @@ public partial class MainWindowViewModel : ObservableObject
                 if (value.ImdbID != null)
                 {
                     var cachePath = $"Cache/OMDB/{value.ImdbID}.json";
-                    if (File.Exists(cachePath))
-                    {
-                        var cachedResponse = await File.ReadAllTextAsync(cachePath);
-                        var fullOmdbJson = JObject.Parse(cachedResponse);
-
-                        var movieDetailDisplayViewModel = new MovieDetailWindowViewModel(value, fullOmdbJson);
+                    // No need to read from cache or parse JObject here, RawOmdbJson is in the Movie object
+                    var movieDetailDisplayViewModel = new MovieDetailWindowViewModel(value, _logger);
                         var movieDetailDisplayWindow = new MovieDetailDisplayWindow
                         {
                             DataContext = movieDetailDisplayViewModel
@@ -86,8 +82,7 @@ public partial class MainWindowViewModel : ObservableObject
                         if (App.CurrentMainWindow != null)
                             await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow);
                         else
-                            await movieDetailDisplayWindow.ShowDialog(null);
-                    }
+                            await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow!);
                 }
             });
         }
@@ -183,7 +178,7 @@ public partial class MainWindowViewModel : ObservableObject
                 Movies.Clear();
                 Movies.Add(movie);
 
-                var movieDetailViewModel = new MovieDetailWindowViewModel(movie);
+                var movieDetailViewModel = new MovieDetailWindowViewModel(movie, _logger);
                 var movieDetailWindow = new MovieDetailDisplayWindow
                 {
                     DataContext = movieDetailViewModel
@@ -197,7 +192,7 @@ public partial class MainWindowViewModel : ObservableObject
                 }
                 else
                 {
-                    result = await movieDetailWindow.ShowDialog<bool?>(null);
+                    result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow!);
                 }
 
                 if (result == true) // Save button was clicked

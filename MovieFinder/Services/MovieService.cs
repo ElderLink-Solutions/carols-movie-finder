@@ -37,7 +37,7 @@ public class MovieService
             var movie = await GetMovieDetailsFromOmdb(movieIdentifier);
             return movie;
         }
-
+        
         return null;
     }
 
@@ -124,9 +124,9 @@ public class MovieService
 
         if (title != null)
         {
-            _logger.Event($"Looking up title '{title}' in Cache/OMDB/files.json");
-            var filesJson = await File.ReadAllTextAsync("Cache/OMDB/files.json");
-            var filesData = JObject.Parse(filesJson);
+            _logger.Event($"Looking up title '{title}' in Cache/files.json");
+            var filesJson = await File.ReadAllTextAsync("Cache/files.json");
+               var filesData = JObject.Parse(filesJson);
             var fileEntry = filesData?["files"]?.FirstOrDefault(f => WebUtility.UrlDecode(f["t"]?.ToString()) == title);
             if (fileEntry != null)
             {
@@ -145,7 +145,7 @@ public class MovieService
             }
             else
             {
-                _logger.Event($"No entry found for title '{title}' in Cache/OMDB/files.json");
+                _logger.Event($"No entry found for title '{title}' in Cache/files.json");
             }
         }
 
@@ -180,12 +180,14 @@ public class MovieService
 
             if (movie != null && !string.IsNullOrEmpty(movie.Title) && !string.IsNullOrEmpty(movie.ImdbID))
             {
+                movie.RawOmdbJson = response; // Store raw JSON in the Movie object
+
                 Directory.CreateDirectory("Cache/OMDB");
                 var cachePath = $"Cache/OMDB/{movie.ImdbID}.json";
                 await File.WriteAllTextAsync(cachePath, response);
 
-                var filesJson = await File.ReadAllTextAsync("Cache/OMDB/files.json");
-                var filesData = JObject.Parse(filesJson);
+                var filesJson = await File.ReadAllTextAsync("Cache/files.json");
+                     var filesData = JObject.Parse(filesJson);
                 var filesArray = filesData["files"] as JArray;
                 if (filesArray != null && !filesArray.Any(f => f["imdbId"]?.ToString() == movie.ImdbID))
                 {
@@ -193,11 +195,11 @@ public class MovieService
                     newFileEntry["t"] = WebUtility.UrlEncode(title);
                     newFileEntry["imdbId"] = movie.ImdbID;
                     filesArray.Add(newFileEntry);
-                    await File.WriteAllTextAsync("Cache/OMDB/files.json", filesData.ToString());
+                    await File.WriteAllTextAsync("Cache/files.json", filesData.ToString());
                 }
 
                 movie.Poster = $"http://img.omdbapi.com/?apikey={_omdbApiKey}&i={movie.ImdbID}";
-                return movie;
+                return movie; // Return only the Movie object
             }
         }
         catch (HttpRequestException e)
