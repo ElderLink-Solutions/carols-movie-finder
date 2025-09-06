@@ -6,23 +6,46 @@ using System.Threading.Tasks; // Added for Task.Run
 using LibUsbDotNet;
 using LibUsbDotNet.Main; // Added for UsbError, ReadEndpointID
 using MovieFinder.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace MovieFinder.Services;
 
 public class BarcodeService
 {
     private readonly IAppLogger _logger;
+    private readonly IConfiguration _configuration;
     private Task? _barcodeReaderTask;
-
-    // These values may need to be changed for the actual device.
-    private const int VendorId = 0x28e9;
-    private const int ProductId = 0x03da;
 
     public UsbDevice? MyUsbDevice;
 
-    public BarcodeService(IAppLogger logger)
+    public BarcodeService(IAppLogger logger, IConfiguration configuration)
     {
         _logger = logger;
+        _configuration = configuration;
+    }
+
+    private int VendorId
+    {
+        get
+        {
+            var vendorStr = _configuration["IDVENDOR"];
+            if (!string.IsNullOrWhiteSpace(vendorStr) && int.TryParse(vendorStr, System.Globalization.NumberStyles.HexNumber, null, out var value))
+                return value;
+            // fallback to default if not set
+            return 0x28e9;
+        }
+    }
+
+    private int ProductId
+    {
+        get
+        {
+            var productStr = _configuration["IDPRODUCT"];
+            if (!string.IsNullOrWhiteSpace(productStr) && int.TryParse(productStr, System.Globalization.NumberStyles.HexNumber, null, out var value))
+                return value;
+            // fallback to default if not set
+            return 0x03da;
+        }
     }
 
     public string GetScannerStatus()

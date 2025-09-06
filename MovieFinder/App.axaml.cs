@@ -43,7 +43,12 @@ public partial class App : Application
         serviceCollection.AddSingleton<IConfiguration>(configuration);
         serviceCollection.AddSingleton<IAppLogger, AppLogger>();
         serviceCollection.AddSingleton<Database>(new Database(dbPath));
-        serviceCollection.AddSingleton<BarcodeService>();
+        serviceCollection.AddSingleton<BarcodeService>(sp =>
+            new BarcodeService(
+                sp.GetRequiredService<IAppLogger>(),
+                sp.GetRequiredService<IConfiguration>()
+            )
+        );
         serviceCollection.AddTransient<MainWindowViewModel>();
 
         Services = serviceCollection.BuildServiceProvider();
@@ -75,4 +80,3 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 }
- 
