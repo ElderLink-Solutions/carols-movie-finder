@@ -11,17 +11,17 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        Console.WriteLine("=== MovieFinder Program.cs: Main starting ===");
         try
         {
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);
-            Console.WriteLine("=== MovieFinder Program.cs: Main completed successfully ===");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("=== MovieFinder Program.cs: Exception occurred ===");
-            Console.WriteLine(ex.ToString());
+            // It's not possible to log here with the DI container, 
+            // as it's configured and used within the Avalonia application lifecycle.
+            // Logging for startup errors should be handled in App.axaml.cs.
+            Console.WriteLine($"Unhandled exception: {ex}");
             throw;
         }
     }

@@ -11,72 +11,120 @@ namespace MovieFinder.ViewModels;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly Database? _database;
-    private readonly BarcodeService _barcodeService;
+    private readonly BarcodeService? _barcodeService;
+    private readonly IAppLogger? _logger;
 
-    public BarcodeService BarcodeService => _barcodeService;
+    public BarcodeService? BarcodeService => _barcodeService;
 
-    [ObservableProperty]
     private string _searchQuery = string.Empty;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set => SetProperty(ref _searchQuery, value);
+    }
 
-    [ObservableProperty]
     private string _barcodeScannerStatus = "DISCONNECTED"; // Default status
+    public string BarcodeScannerStatus
+    {
+        get => _barcodeScannerStatus;
+        set => SetProperty(ref _barcodeScannerStatus, value);
+    }
 
-    [ObservableProperty]
     private string _logFilePath = string.Empty;
+    public string LogFilePath
+    {
+        get => _logFilePath;
+        set => SetProperty(ref _logFilePath, value);
+    }
 
-    [ObservableProperty]
     private string _csvFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _applicationLog = string.Empty;
+    public string CsvFilePath
+    {
+        get => _csvFilePath;
+        set => SetProperty(ref _csvFilePath, value);
+    }
 
     public ObservableCollection<Movie> Movies { get; } = new();
 
     [RelayCommand]
     private void OpenDebugWindow()
     {
+        _logger?.Log("Debug Window button pressed.");
+        BarcodeScannerStatus = "Button Pressed: Debug Window";
         // This will be implemented in the MainWindow code-behind to open the debug window.
         // The command is exposed for binding in XAML.
     }
 
     // This constructor is used by the XAML designer.
-    public MainWindowViewModel() 
+    public MainWindowViewModel()
     {
-        _barcodeService = new BarcodeService();
     }
 
-    public MainWindowViewModel(Database database, BarcodeService barcodeService)
+    public MainWindowViewModel(Database database, BarcodeService barcodeService, IAppLogger logger)
     {
         _database = database;
         _barcodeService = barcodeService;
+        _logger = logger;
         LoadMovies().ConfigureAwait(false);
 
-        var logBuilder = new StringBuilder();
-        logBuilder.AppendLine("Starting application");
+        _logger?.Log("Starting application");
 
-        BarcodeScannerStatus = _barcodeService.GetScannerStatus();
-        logBuilder.AppendLine($"Looking for device: {BarcodeScannerStatus}");
+        // Subscribe to barcode scanned event
+        if (_barcodeService != null)
+            _barcodeService.BarcodeScanned += OnBarcodeScanned;
 
-        if (_barcodeService.IsScannerConnected())
+        BarcodeScannerStatus = _barcodeService?.GetScannerStatus() ?? "DISCONNECTED";
+        _logger?.Log($"Looking for device: {BarcodeScannerStatus}");
+
+        if (_barcodeService != null && _barcodeService.IsScannerConnected())
         {
             var deviceInfo = _barcodeService.GetDeviceInfo();
-            logBuilder.AppendLine($"FOUND - SN: {deviceInfo?.SerialNumber}");
+            _logger?.Log($"FOUND - SN: {deviceInfo?.SerialNumber}");
+            _barcodeService.StartReadingBarcodes(); // Start reading after successful connection
         }
         else
         {
-            logBuilder.AppendLine("NOT FOUND");
+            _logger?.Log("NOT FOUND");
         }
-
-        ApplicationLog = logBuilder.ToString();
 
         // These paths would typically come from a configuration file
         LogFilePath = "/var/log/MovieFinder.log";
         CsvFilePath = "/var/log/MovieFinder.csv";
     }
 
+    private async void OnBarcodeScanned(string barcode) // Changed to async void
+    {
+        BarcodeScannerStatus = $"Barcode Found: {barcode}";
+        _logger?.Log($"Barcode Scanned: {barcode}");
+
+        if (barcode == "883929102495")
+        {
+            _logger?.Log("Barcode matches 'Robin Hood: Prince of Thieves'. Searching for movie...");
+            if (_database is null)
+            {
+                _logger?.Log("Database service is not initialized. Cannot search for movie.");
+                return;
+            }
+
+            Movies.Clear();
+            var movies = await _database.SearchMoviesAsync("Robin Hood: Prince of Thieves");
+            foreach (var movie in movies)
+            {
+                Movies.Add(movie);
+            }
+            _logger?.Log($"Found {movies.Count} movies for 'Robin Hood: Prince of Thieves'.");
+        }
+        else
+        {
+            _logger?.Log($"Barcode '{barcode}' does not match any special movie. No action taken.");
+        }
+    }
+
     [RelayCommand]
     private async Task SearchMovies()
     {
+        _logger?.Log($"Search Movies button pressed. Query: {SearchQuery}");
+        BarcodeScannerStatus = "Button Pressed: Search Movies";
         if (_database is null) return;
 
         Movies.Clear();
@@ -101,6 +149,8 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void AddNewMovie()
     {
+        _logger?.Log("Add New Movie button pressed.");
+        BarcodeScannerStatus = "Button Pressed: Add New Movie";
         // TODO: Implement logic to add a new movie (show dialog, etc.)
         // For now, just a placeholder
     }

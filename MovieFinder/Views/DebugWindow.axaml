@@ -8,14 +8,25 @@
         x:DataType="vm:DebugWindowViewModel"
         Title="Debug Window">
 
-    <StackPanel Spacing="10" Margin="10">
-        <Button Content="Check for Barcode Scanner" Command="{Binding CheckBarcodeScannerCommand}"/>
-        <TextBlock Text="{Binding BarcodeScannerStatus}" HorizontalAlignment="Center"/>
-        <StackPanel>
-            <TextBlock Text="Device Information:" FontWeight="Bold"/>
-            <TextBlock Text="{Binding DeviceInfo.VendorId, StringFormat='Vendor ID: {0}'}"/>
-            <TextBlock Text="{Binding DeviceInfo.ProductId, StringFormat='Product ID: {0}'}"/>
-            <TextBlock Text="{Binding DeviceInfo.SerialNumber, StringFormat='Serial Number: {0}'}"/>
+    <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="10">
+        <StackPanel Grid.Row="0" Spacing="10">
+            <Button Content="Check for Barcode Scanner" Command="{Binding CheckBarcodeScannerCommand}"/>
+            <TextBlock Text="{Binding BarcodeScannerStatus}" HorizontalAlignment="Center"/>
+            <StackPanel>
+                <TextBlock Text="Device Information:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding DeviceInfo.VendorId, StringFormat='Vendor ID: {0}'}"/>
+                <TextBlock Text="{Binding DeviceInfo.ProductId, StringFormat='Product ID: {0}'}"/>
+                <TextBlock Text="{Binding DeviceInfo.SerialNumber, StringFormat='Serial Number: {0}'}"/>
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+
+        <TextBlock Grid.Row="1" Text="Application Log:" FontWeight="Bold" Margin="0,10,0,5"/>
+        <ListBox Grid.Row="2" ItemsSource="{Binding LogMessages}" MaxHeight="200" VerticalAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
 </Window>
