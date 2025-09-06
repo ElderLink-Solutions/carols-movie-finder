@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using MovieFinder.Models;
@@ -6,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Configuration;
 using MovieFinder.Services;
 using System.Net;
+using System.Linq;
 
 namespace MovieFinder.Services;
 
@@ -41,6 +43,14 @@ public class MovieService
 
     private async Task<JObject?> GetMovieIdentifierFromUpc(string barcode)
     {
+        var cachePath = $"barcodes/{barcode}.json";
+        if (File.Exists(cachePath))
+        {
+            var cachedResponse = await File.ReadAllTextAsync(cachePath);
+            _logger.Event($"Barcode found in cache: {barcode}.json");
+            return JObject.Parse(cachedResponse);
+        }
+
         if (string.IsNullOrEmpty(_upcItemDbApiKey))
         {
             _logger.Warn("BarcodeSpider API key is missing.");
@@ -49,7 +59,7 @@ public class MovieService
 
         var url = $"https://api.barcodespider.com/v1/lookup?token={_upcItemDbApiKey}&upc={barcode}";
         _logger.Event($"Barcode fetch submitted: {url}");
-        
+
         try
         {
             var response = await _httpClient.GetStringAsync(url);
@@ -58,6 +68,8 @@ public class MovieService
 
             if (data?["item_attributes"]?["title"]?.ToString() is string title && !string.IsNullOrEmpty(title))
             {
+                Directory.CreateDirectory("barcodes");
+                await File.WriteAllTextAsync(cachePath, response);
                 var identifier = new JObject();
                 identifier["title"] = title;
                 return identifier;
@@ -67,7 +79,7 @@ public class MovieService
         {
             _logger.Error($"BarcodeSpider API Error: {e.Message}");
         }
-        
+
         return null;
     }
 
@@ -79,12 +91,47 @@ public class MovieService
             return null;
         }
 
+        string? imdbId = movieIdentifier?["imdb_id"]?.ToString();
+        string? title = movieIdentifier?["title"]?.ToString();
+
+        if (imdbId != null)
+        {
+            var cachePath = $"Cache/OMDB/{imdbId}.json";
+            if (File.Exists(cachePath))
+            {
+                var cachedResponse = await File.ReadAllTextAsync(cachePath);
+                _logger.Event($"OMDb movie found in cache: {imdbId}.json");
+                return JsonConvert.DeserializeObject<Movie>(cachedResponse);
+            }
+        }
+
+        if (title != null)
+        {
+            var filesJson = await File.ReadAllTextAsync("Cache/OMDB/files.json");
+            var filesData = JObject.Parse(filesJson);
+            var fileEntry = filesData?["files"]?.FirstOrDefault(f => f["t"]?.ToString() == WebUtility.UrlEncode(title));
+            if (fileEntry != null)
+            {
+                imdbId = fileEntry["imdbId"]?.ToString();
+                if (imdbId != null)
+                {
+                    var cachePath = $"Cache/OMDB/{imdbId}.json";
+                    if (File.Exists(cachePath))
+                    {
+                        var cachedResponse = await File.ReadAllTextAsync(cachePath);
+                        _logger.Event($"OMDb movie found in cache: {imdbId}.json");
+                        return JsonConvert.DeserializeObject<Movie>(cachedResponse);
+                    }
+                }
+            }
+        }
+
         string? url = null;
-        if (movieIdentifier?["imdb_id"]?.ToString() is string imdbId)
+        if (imdbId != null)
         {
             url = $"http://www.omdbapi.com/?apikey={_omdbApiKey}&i={imdbId}";
         }
-        else if (movieIdentifier?["title"]?.ToString() is string title)
+        else if (title != null)
         {
             var blacklistedTerms = new[] { "[Double Sided]" };
             foreach (var term in blacklistedTerms)
@@ -108,8 +155,24 @@ public class MovieService
             _logger.Event($"OMDb API fetch results: {response}");
             var movie = JsonConvert.DeserializeObject<Movie>(response);
 
-            if (movie != null && !string.IsNullOrEmpty(movie.Title))
+            if (movie != null && !string.IsNullOrEmpty(movie.Title) && !string.IsNullOrEmpty(movie.ImdbID))
             {
+                Directory.CreateDirectory("Cache/OMDB");
+                var cachePath = $"Cache/OMDB/{movie.ImdbID}.json";
+                await File.WriteAllTextAsync(cachePath, response);
+
+                var filesJson = await File.ReadAllTextAsync("Cache/OMDB/files.json");
+                var filesData = JObject.Parse(filesJson);
+                var filesArray = filesData["files"] as JArray;
+                if (filesArray != null && !filesArray.Any(f => f["imdbId"]?.ToString() == movie.ImdbID))
+                {
+                    var newFileEntry = new JObject();
+                    newFileEntry["t"] = WebUtility.UrlEncode(title);
+                    newFileEntry["imdbId"] = movie.ImdbID;
+                    filesArray.Add(newFileEntry);
+                    await File.WriteAllTextAsync("Cache/OMDB/files.json", filesData.ToString());
+                }
+
                 movie.Poster = $"http://img.omdbapi.com/?apikey={_omdbApiKey}&i={movie.ImdbID}";
                 return movie;
             }
