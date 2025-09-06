@@ -34,6 +34,7 @@ public class MovieService
 
     private async Task<JObject?> GetMovieIdentifierFromUpc(string barcode)
     {
+        /*
         // Note: UPCitemdb has a free tier that doesn't require a key, but it's less reliable.
         var url = $"https://api.upcitemdb.com/prod/v1/lookup?upc={barcode}";
         
@@ -64,12 +65,13 @@ public class MovieService
             // Handle exceptions (e.g., network errors, invalid JSON)
             System.Diagnostics.Debug.WriteLine($"UPCitemdb API Error: {e.Message}");
         }
-        
-        return null;
+        */
+        return await Task.FromResult<JObject?>(null);
     }
 
     private async Task<Movie?> GetMovieDetailsFromOmdb(JObject movieIdentifier)
     {
+        /*
         if (string.IsNullOrEmpty(OmdbApiKey) || OmdbApiKey == "YOUR_OMDB_API_KEY")
         {
             System.Diagnostics.Debug.WriteLine("OMDb API key is missing.");
@@ -105,7 +107,7 @@ public class MovieService
         {
             System.Diagnostics.Debug.WriteLine($"OMDb API Error: {e.Message}");
         }
-
-        return null;
+        */
+        return await Task.FromResult<Movie?>(null);
     }
 }

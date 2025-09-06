@@ -12,6 +12,7 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly Database? _database;
     private readonly BarcodeService? _barcodeService;
+    private readonly MovieService? _movieService;
     private readonly IAppLogger? _logger;
 
     public BarcodeService? BarcodeService => _barcodeService;
@@ -60,10 +61,11 @@ public partial class MainWindowViewModel : ObservableObject
     {
     }
 
-    public MainWindowViewModel(Database database, BarcodeService barcodeService, IAppLogger logger)
+    public MainWindowViewModel(Database database, BarcodeService barcodeService, MovieService movieService, IAppLogger logger)
     {
         _database = database;
         _barcodeService = barcodeService;
+        _movieService = movieService;
         _logger = logger;
         LoadMovies().ConfigureAwait(false);
 
@@ -92,31 +94,25 @@ public partial class MainWindowViewModel : ObservableObject
         CsvFilePath = "/var/log/MovieFinder.csv";
     }
 
-    private async void OnBarcodeScanned(string barcode) // Changed to async void
+    private async void OnBarcodeScanned(string barcode)
     {
-        BarcodeScannerStatus = $"Barcode Found: {barcode}";
         _logger?.Log($"Barcode Scanned: {barcode}");
-
-        if (barcode == "883929102495")
+        if (_movieService == null)
         {
-            _logger?.Log("Barcode matches 'Robin Hood: Prince of Thieves'. Searching for movie...");
-            if (_database is null)
-            {
-                _logger?.Log("Database service is not initialized. Cannot search for movie.");
-                return;
-            }
+            _logger?.Log("MovieService is not initialized.");
+            return;
+        }
 
+        var movie = await _movieService.FetchMovieDetailsFromBarcode(barcode);
+        if (movie != null)
+        {
             Movies.Clear();
-            var movies = await _database.SearchMoviesAsync("Robin Hood: Prince of Thieves");
-            foreach (var movie in movies)
-            {
-                Movies.Add(movie);
-            }
-            _logger?.Log($"Found {movies.Count} movies for 'Robin Hood: Prince of Thieves'.");
+            Movies.Add(movie);
+            _logger?.Log($"Found movie: {movie.Title}");
         }
         else
         {
-            _logger?.Log($"Barcode '{barcode}' does not match any special movie. No action taken.");
+            _logger?.Log($"Could not find a movie for barcode {barcode}");
         }
     }
 

@@ -49,7 +49,15 @@ public partial class App : Application
                 sp.GetRequiredService<IConfiguration>()
             )
         );
-        serviceCollection.AddTransient<MainWindowViewModel>();
+        serviceCollection.AddSingleton<MovieService>();
+        serviceCollection.AddTransient<MainWindowViewModel>(sp => 
+            new MainWindowViewModel(
+                sp.GetRequiredService<Database>(), 
+                sp.GetRequiredService<BarcodeService>(),
+                sp.GetRequiredService<MovieService>(),
+                sp.GetRequiredService<IAppLogger>()
+            )
+        );
 
         Services = serviceCollection.BuildServiceProvider();
 

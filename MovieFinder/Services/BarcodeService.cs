@@ -1,12 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text; // Added for Encoding
-using System.Threading; // Added for CancellationToken
-using System.Threading.Tasks; // Added for Task.Run
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using LibUsbDotNet;
-using LibUsbDotNet.Main; // Added for UsbError, ReadEndpointID
-using MovieFinder.Models;
+using LibUsbDotNet.Main;
 using Microsoft.Extensions.Configuration;
+using MovieFinder.Models;
 
 namespace MovieFinder.Services;
 
@@ -15,6 +16,7 @@ public class BarcodeService
     private readonly IAppLogger _logger;
     private readonly IConfiguration _configuration;
     private Task? _barcodeReaderTask;
+    private readonly StringBuilder _barcode = new();
 
     public UsbDevice? MyUsbDevice;
 
@@ -64,7 +66,7 @@ public class BarcodeService
             var registry = allDevices.FirstOrDefault(d => d.Vid == VendorId && d.Pid == ProductId);
             if (registry != null)
             {
-                _logger.Log($"Device found. Attempting to open device...");
+                _logger.Log("Device found. Attempting to open device...");
                 UsbDevice? device;
                 bool success = registry.Open(out device);
                 MyUsbDevice = device;
@@ -91,10 +93,10 @@ public class BarcodeService
 
     public UsbDeviceInfo? GetDeviceInfo()
     {
-        _logger.Log($"Enter UsbDeviceInfo");
+        _logger.Log("Enter UsbDeviceInfo");
         if (MyUsbDevice == null)
         {
-            _logger.Log($"MyUsbDevice == null");
+            _logger.Log("MyUsbDevice == null");
             return null;
         }
 
@@ -148,67 +150,67 @@ public class BarcodeService
             _logger.Log($"Barcode reader thread {_barcodeReaderTask?.Id} has gracefully shut down.");
         }
     }
+    
+    private static readonly Dictionary<byte, char> HidScanCodeMap = new()
+    {
+        { 0x1E, '1' }, { 0x1F, '2' }, { 0x20, '3' }, { 0x21, '4' }, { 0x22, '5' },
+        { 0x23, '6' }, { 0x24, '7' }, { 0x25, '8' }, { 0x26, '9' }, { 0x27, '0' }
+    };
+
+    private char HidCodeToChar(byte hidCode)
+    {
+        if (HidScanCodeMap.TryGetValue(hidCode, out char ch))
+        {
+            return ch;
+        }
+        return '\0';
+    }
 
     private void ReadBarcodesLoop(CancellationToken cancellationToken)
     {
-        _logger.Log("Entering ReadBarcodesLoop."); // Log entry into the method
         UsbEndpointReader? reader = null;
         try
         {
-            // Find the IN endpoint (usually for reading data from device)
-            // Assuming the barcode scanner uses an Interrupt IN endpoint
-            // You might need to adjust the endpoint address based on your specific scanner's descriptor
-            _logger.Log("Attempting to open endpoint reader...");
-            reader = MyUsbDevice?.OpenEndpointReader(ReadEndpointID.Ep01); // Common for HID devices
-
+            reader = MyUsbDevice?.OpenEndpointReader(ReadEndpointID.Ep01);
             if (reader == null)
             {
-                _logger.Log("Could not open endpoint reader for barcode scanner. Reader is null.");
                 return;
             }
-            _logger.Log("Endpoint reader opened successfully.");
 
-            byte[] readBuffer = new byte[64]; // Typical buffer size for HID reports
+            byte[] readBuffer = new byte[64];
             int bytesRead;
-            ErrorCode errorCode; // Changed from UsbError to ErrorCode
-
-            _logger.Log("Barcode reading loop started.");
+            ErrorCode errorCode;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                _logger.Log("Attempting to read from USB device..."); // Log each read attempt
-                errorCode = reader.Read(readBuffer, 1000, out bytesRead); // 1000ms timeout
+                errorCode = reader.Read(readBuffer, 1000, out bytesRead);
 
-                if (errorCode == ErrorCode.None) // Check for success first
+                if (errorCode == ErrorCode.None && bytesRead > 0)
                 {
-                    if (bytesRead > 0)
+                    byte hidCode = readBuffer[2];
+                    if (hidCode == 0x28) // Enter key
                     {
-                        // Log raw bytes
-                        string rawDataHex = BitConverter.ToString(readBuffer, 0, bytesRead).Replace("-", "");
-                        _logger.Log($"Raw USB data received (Hex): {rawDataHex}");
-
-                        // Assuming the barcode data is ASCII encoded
-                        string barcode = Encoding.ASCII.GetString(readBuffer, 0, bytesRead).TrimEnd('\0');
-                        if (!string.IsNullOrWhiteSpace(barcode))
+                        if (_barcode.Length > 0)
                         {
-                            _logger.Log($"Barcode Scanned: {barcode}");
+                            var barcode = _barcode.ToString();
+                            _logger.Log($"Scanned barcode: {barcode}");
                             BarcodeScanned?.Invoke(barcode);
+                            _barcode.Clear();
                         }
                     }
                     else
                     {
-                        _logger.Log("USB Read: No bytes read (timeout or empty data).");
+                        char c = HidCodeToChar(hidCode);
+                        if (c != '\0')
+                        {
+                            _barcode.Append(c);
+                        }
                     }
                 }
-                else if (errorCode == ErrorCode.IoTimedOut)
+                else if (errorCode != ErrorCode.IoTimedOut)
                 {
-                    _logger.Log("USB Read: Timeout."); // Re-enabled for troubleshooting
-                }
-                else // Other errors
-                {
-                    _logger.Log($"USB Read Error: {errorCode}. Bytes read: {bytesRead}");
-                    _logger.Log("Exiting barcode reading loop due to error."); // Log exit reason
-                    break; // Exit loop on critical error
+                    _logger.Log($"USB Read Error: {errorCode}.");
+                    break; 
                 }
             }
         }
@@ -218,8 +220,7 @@ public class BarcodeService
         }
         finally
         {
-            reader?.Dispose(); // Dispose the reader when done
-            _logger.Log("Barcode reading loop stopped.");
+            reader?.Dispose();
         }
     }
 }

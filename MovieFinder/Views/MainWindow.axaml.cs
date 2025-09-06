@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using MovieFinder.Services;
@@ -14,7 +15,7 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private void OpenDebugWindow(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    private void OpenDebugWindow(object? sender, PointerPressedEventArgs e)
     {
         if (DataContext is MainWindowViewModel vm && vm.BarcodeService is not null)
         {
@@ -27,5 +28,25 @@ public partial class MainWindow : Window
             logger?.Log("Debug Window Initialized.");
             debugWindow.Show();
         }
+    }
+
+    public void BeginMoveDrag(object? sender, PointerPressedEventArgs e)
+    {
+        BeginMoveDrag(e);
+    }
+
+    public void MinimizeWindow(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    public void MaximizeWindow(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
+
+    public void CloseWindow(object? sender, RoutedEventArgs e)
+    {
+        Close();
     }
 }
