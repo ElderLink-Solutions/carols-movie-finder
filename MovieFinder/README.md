@@ -29,6 +29,57 @@ The purpose of MovieFinder is to offer an easy-to-use tool for cataloging, searc
 
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download) or later
 
+---
+
+### Setup Linux
+
+**Step 1:** With the device unattached, run the following command in a terminal:
+```sh
+sudo dmesg -w
+```
+Plug in your barcode scanner device and look for lines similar to:
+```
+new full-speed USB device number 34 using xhci_hcd
+New USB device found, idVendor=28e9, idProduct=03da, bcdDevice= 1.00
+New USB device strings: Mfr=1, Product=2, SerialNumber=3
+```
+In this example, the values are `idVendor=28e9` and `idProduct=03da`.
+
+**Step 2:** Add these values to your `appsettings.json` if needed.
+
+**Step 3:** Create a udev rules file at `/etc/udev/rules.d/99-barcode-scanner.rules` with the following content:
+```
+# This rule sets permissions for the raw USB device.
+SUBSYSTEM=="usb", ATTRS{idVendor}=="28e9", ATTRS{idProduct}=="03da", MODE="0666", GROUP="plugdev"
+
+# This rule tells the kernel's usbhid driver to unbind (detach) from this device when it's plugged in.
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="28e9", ATTRS{idProduct}=="03da", DRIVER=="usbhid", RUN+="/bin/sh -c 'echo -n $kernel > /sys/bus/usb/drivers/usbhid/unbind'"
+```
+
+**Step 4:** Add your user to the `plugdev` group:
+```sh
+sudo usermod -a -G plugdev $USER
+```
+Log out and log back in for group changes to take effect.
+
+---
+
+### Setup Windows
+
+**Step 1:** Plug in your barcode scanner device.
+
+**Step 2:** Open Device Manager and locate your device under "Universal Serial Bus devices" or similar. Right-click and select "Properties" to view the device's Vendor ID and Product ID.
+
+**Step 3:** If needed, add the Vendor ID and Product ID to your `appsettings.json`.
+
+**Step 4:** Ensure you have the correct drivers installed for your barcode scanner. Most devices will work with the default Windows HID drivers, but some may require manufacturer-specific drivers.
+
+**Step 5:** Run the application as an administrator if you encounter permission issues accessing the USB device.
+
+---
+
+### Setup Linux
+
 ### Running the Application
 
 1. **Clone the repository**
