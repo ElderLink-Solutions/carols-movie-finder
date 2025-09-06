@@ -2,8 +2,10 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using MovieFinder.ViewModels;
-using System; 
-using Avalonia.Media; // Add this
+using System;
+using Avalonia.Media.Imaging;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 
 namespace MovieFinder.Views;
 
@@ -20,10 +22,15 @@ public partial class MovieDetailDisplayWindow : Window
                 {
                     var jsonWindow = new Window
                     {
-                        Title = "Full JSON Output",
+                        Title = "Raw Information",
                         Content = new ScrollViewer
                         {
-                            Content = new TextBlock { Text = json, TextWrapping = TextWrapping.Wrap }
+                            Content = new TextBox
+                            {
+                                Text = json,
+                                AcceptsReturn = true,
+                                IsReadOnly = true
+                            }
                         },
                         Width = 600,
                         Height = 400,
@@ -31,18 +38,23 @@ public partial class MovieDetailDisplayWindow : Window
                     };
                     jsonWindow.ShowDialog(this);
                 };
-                vm.CloseRequested = (result) => Close(result); 
+                vm.CloseRequested = (result) => Close(result);
             }
         };
     }
 
-    // Allows the window to be dragged from the title bar area
+    private void PosterImage_ImageFailed(object? sender, EventArgs e)
+    {
+        var errorText = this.FindControl<TextBlock>("PosterErrorText");
+        if (errorText != null)
+            errorText.IsVisible = true;
+    }
+
     private void BeginMoveDrag(object? sender, PointerPressedEventArgs e)
     {
         BeginMoveDrag(e);
     }
-    
-    // The Close button in the custom title bar can just call the window's Close method
+
     private void CloseWindow(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close();

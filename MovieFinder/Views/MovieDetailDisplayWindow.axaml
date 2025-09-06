@@ -119,8 +119,8 @@
                         <TextBlock Text="Borrowed By:" FontWeight="SemiBold" Margin="0,10,0,0"/>
                         <TextBox Text="{Binding BorrowedBy}" Watermark="Enter name or leave blank"/>
 
-                        <!-- Full JSON Details Button -->
-                        <Button Content="View Full JSON" Command="{Binding OpenFullJsonDetailsCommand}" Margin="0,10,0,0"/>
+                        <!-- Raw Information Button -->
+                        <Button Content="Raw Information" Command="{Binding OpenFullJsonDetailsCommand}" Margin="0,10,0,0"/>
                     </StackPanel>
 
                     <!-- Poster (Right) -->
