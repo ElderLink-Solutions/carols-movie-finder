@@ -1,0 +1,89 @@
+{
+  "item_response": { "code": 200, "status": "OK", "message": "Data returned" },
+  "item_attributes": {
+    "title": "Robin Hood: Prince of Thieves [Double Sided]",
+    "upc": "883929102495",
+    "ean": "0883929102495",
+    "parent_category": "Media",
+    "category": "DVDs & Videos",
+    "brand": "Warner Brothers",
+    "model": "6638807",
+    "mpn": "117087",
+    "manufacturer": "WarnerBrothers",
+    "publisher": "WarnerBrothers",
+    "asin": "B002VWNID6",
+    "color": "",
+    "size": "",
+    "weight": "25 hundredths-pounds",
+    "image": "https://images.barcodespider.com/upcimage/883929102495.jpg",
+    "is_adult": "0",
+    "description": "",
+    "lowest_price": "",
+    "highest_price": "12.64"
+  },
+  "Stores": [
+    {
+      "store_name": "Amazon US",
+      "title": "Robin Hood: Prince of Thieves [Double Sided]",
+      "image": "https://images-na.ssl-images-amazon.com/images/I/51dCrBXv3YL.jpg",
+      "price": "",
+      "currency": "",
+      "link": "https://www.barcodespider.com/getstore/ODgzOTI5MTAyNDk1fEFtYXpvbiBVUw,,",
+      "updated": "2019-06-18 09:15:30"
+    },
+    {
+      "store_name": "Barnes & Noble",
+      "title": "Robin Hood: Prince of Thieves [Double Sided]",
+      "image": "https://prodimage.barnesandnoble.com/pimages/0883929102495_p0_v1.jpg",
+      "price": "4.99",
+      "currency": "USD",
+      "link": "https://www.barcodespider.com/getstore/ODgzOTI5MTAyNDk1fEJhcm5lcyAmYW1wOyBOb2JsZQ,,",
+      "updated": "2019-04-29 04:57"
+    },
+    {
+      "store_name": "BOOKSAMILLION.COM",
+      "title": "Robin Hood: Prince of Thieves [Double Sided]",
+      "image": "https://covers4.booksamillion.com/covers/dvd/8/83/929/102/883929102495_2669873.jpg",
+      "price": "5.97",
+      "currency": "USD",
+      "link": "https://www.barcodespider.com/getstore/ODgzOTI5MTAyNDk1fEJPT0tTQU1JTExJT04uQ09N",
+      "updated": "2019-04-29 04:57"
+    },
+    {
+      "store_name": "Newegg Business",
+      "title": "Robin Hood: Prince of Thieves [Double Sided]",
+      "image": "http://images10.newegg.com/ProductImageCompressAll200/883929102495-03.jpg",
+      "price": "9.29",
+      "currency": "USD",
+      "link": "https://www.barcodespider.com/getstore/ODgzOTI5MTAyNDk1fE5ld2VnZyBCdXNpbmVzcw,,",
+      "updated": "2019-04-29 04:57"
+    },
+    {
+      "store_name": "Newegg.com",
+      "title": "Robin Hood: Prince of Thieves [Double Sided]",
+      "image": "https://images10.newegg.com/ProductImageCompressAll200/883929102495-03.jpg",
+      "price": "8.19",
+      "currency": "USD",
+      "link": "https://www.barcodespider.com/getstore/ODgzOTI5MTAyNDk1fE5ld2VnZy5jb20,",
+      "updated": "2019-04-29 04:57"
+    },
+    {
+      "store_name": "Secondspin.com",
+      "title": "Robin Hood: Prince of Thieves [Double Sided]",
+      "image": "http://www.secondspin.com/amgcover/dvd/full/u9/19/u91917xiazp.jpg",
+      "price": "4.99",
+      "currency": "USD",
+      "link": "https://www.barcodespider.com/getstore/ODgzOTI5MTAyNDk1fFNlY29uZHNwaW4uY29t",
+      "updated": "2019-04-29 04:57"
+    },
+    {
+      "store_name": "UnbeatableSale.com",
+      "title": "Robin Hood: Prince of Thieves [Double Sided]",
+      "image": "http://site.unbeatablesale.com/EB256/igme64345.gif",
+      "price": "12.64",
+      "currency": "USD",
+      "link": "https://www.barcodespider.com/getstore/ODgzOTI5MTAyNDk1fFVuYmVhdGFibGVTYWxlLmNvbQ,,",
+      "updated": "2019-04-29 04:57"
+    }
+  ]
+}

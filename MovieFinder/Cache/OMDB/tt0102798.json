@@ -1,0 +1,31 @@
+{
+  "Title": "Robin Hood: Prince of Thieves",
+  "Year": "1991",
+  "Rated": "PG-13",
+  "Released": "14 Jun 1991",
+  "Runtime": "143 min",
+  "Genre": "Action, Adventure, Drama",
+  "Director": "Kevin Reynolds",
+  "Writer": "Pen Densham, John Watson",
+  "Actors": "Kevin Costner, Morgan Freeman, Mary Elizabeth Mastrantonio",
+  "Plot": "Robin Hood decides to fight back as an outlaw when faced with the tyranny of the Sheriff of Nottingham.",
+  "Language": "English, Arabic",
+  "Country": "United States",
+  "Awards": "Nominated for 1 Oscar. 16 wins & 25 nominations total",
+  "Poster": "https://m.media-amazon.com/images/M/MV5BNTUyMjA5NDktNWY5Ny00ZWU4LWE4Y2ItMDYzZTk0NzU3ZWMyXkEyXkFqcGc@._V1_SX300.jpg",
+  "Ratings": [
+    { "Source": "Internet Movie Database", "Value": "6.9/10" },
+    { "Source": "Rotten Tomatoes", "Value": "51%" },
+    { "Source": "Metacritic", "Value": "51/100" }
+  ],
+  "Metascore": "51",
+  "imdbRating": "6.9",
+  "imdbVotes": "217,258",
+  "imdbID": "tt0102798",
+  "Type": "movie",
+  "DVD": "N/A",
+  "BoxOffice": "$165,493,908",
+  "Production": "N/A",
+  "Website": "N/A",
+  "Response": "True"
+}
