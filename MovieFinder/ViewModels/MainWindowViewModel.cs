@@ -185,6 +185,14 @@ public partial class MainWindowViewModel : ObservableObject
             }
 
             var movie = await _movieService.FetchMovieDetailsFromBarcode(barcode);
+
+            if (movie == null && barcode.Length == 13 && barcode.StartsWith("8"))
+            {
+                var correctedBarcode = barcode.Substring(1);
+                _logger?.Log($"Failed to find movie for {barcode}. Trying again with corrected barcode: {correctedBarcode}");
+                movie = await _movieService.FetchMovieDetailsFromBarcode(correctedBarcode);
+            }
+
             if (movie != null)
             {
                 _logger?.Event($"Found movie: {movie.Title}");
