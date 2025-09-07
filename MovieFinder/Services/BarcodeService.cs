@@ -137,6 +137,12 @@ public class BarcodeService : IDisposable
 
     public void StartReadingBarcodes()
     {
+        if (_barcodeReaderTask != null && !_barcodeReaderTask.IsCompleted)
+        {
+            _logger.Warn("Barcode reader task is already running.");
+            return;
+        }
+
         _logger.Event("StartReadingBarcodes.");
         _logger.Information("Attempting to start barcode reading...");
         if (MyUsbDevice == null || !MyUsbDevice.IsOpen)

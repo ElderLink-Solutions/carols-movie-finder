@@ -37,6 +37,7 @@ class Program
         }
         finally
         {
+            Console.WriteLine("Main method finished. Releasing mutex.");
             _mutex?.ReleaseMutex();
             _mutex?.Dispose();
         }

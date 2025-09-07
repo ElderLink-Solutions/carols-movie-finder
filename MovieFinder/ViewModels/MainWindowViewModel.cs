@@ -125,7 +125,13 @@ public partial class MainWindowViewModel : ObservableObject
             appLogger.OnLogMessage += OnLogMessageReceived;
         }
 
-        LoadMovies().ConfigureAwait(false);
+        _ = LoadMovies().ContinueWith(t => 
+        {
+            if (t.IsFaulted)
+            {
+                _logger?.Error($"Error loading movies: {t.Exception}");
+            }
+        });
 
         _logger?.Log("Starting application");
 
@@ -223,12 +229,17 @@ public partial class MainWindowViewModel : ObservableObject
 
                         if (result == true) // Save button was clicked
                         {
+                            _logger?.Log("Save button was clicked. Updating database.");
                             // Update the database
                             if (_database != null)
                             {
+                                _logger?.Log("Calling SaveMovieAsync.");
                                 movie = await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
+                                _logger?.Log("SaveMovieAsync completed.");
                                 _logger?.Event($"Database updated, ID: {movie.Id}");
+                                _logger?.Log("Calling LoadMovies.");
                                 await LoadMovies(); // Reload movies to reflect changes
+                                _logger?.Log("LoadMovies completed.");
                             }
                         }
                     }
@@ -286,13 +297,17 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (_database is null) return;
 
-        Movies.Clear();
         var movies = await _database.GetMoviesAsync();
         _logger?.Log($"Loaded {movies.Count} movies from database.");
-        foreach (var movie in movies)
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            _logger?.Log($"  - Movie: {movie.Title}, ID: {movie.Id}");
-            Movies.Add(movie);
-        }
+            Movies.Clear();
+            foreach (var movie in movies)
+            {
+                _logger?.Log($"  - Movie: {movie.Title}, ID: {movie.Id}");
+                Movies.Add(movie);
+            }
+        });
     }
 }

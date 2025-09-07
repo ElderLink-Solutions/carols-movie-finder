@@ -137,7 +137,9 @@ public partial class MovieDetailWindowViewModel : ObservableObject
         _logger?.Log("Save command executed.");
         Movie.ShelfLocation = ShelfLocation;
         Movie.BorrowedBy = BorrowedBy;
+        _logger?.Log("Invoking CloseRequested(true).");
         CloseRequested?.Invoke(true);
+        _logger?.Log("CloseRequested(true) invoked.");
     }
 
     [RelayCommand]
