@@ -54,6 +54,8 @@ public partial class MainWindowViewModel : ObservableObject
     public ObservableCollection<string> LogMessages { get; } = new();
     public ObservableCollection<string> FilteredLogMessages { get; } = new();
 
+    public int TotalMovies => Movies.Count;
+
     [ObservableProperty]
     private string _copiedNotification = string.Empty;
 
@@ -75,14 +77,14 @@ public partial class MainWindowViewModel : ObservableObject
                     var cachePath = $"Cache/OMDB/{value.ImdbID}.json";
                     // No need to read from cache or parse JObject here, RawOmdbJson is in the Movie object
                     var movieDetailDisplayViewModel = new MovieDetailWindowViewModel(value, _logger);
-                        var movieDetailDisplayWindow = new MovieDetailDisplayWindow
-                        {
-                            DataContext = movieDetailDisplayViewModel
-                        };
-                        if (App.CurrentMainWindow != null)
-                            await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow);
-                        else
-                            await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow!);
+                    var movieDetailDisplayWindow = new MovieDetailDisplayWindow
+                    {
+                        DataContext = movieDetailDisplayViewModel
+                    };
+                    if (App.CurrentMainWindow != null)
+                        await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow);
+                    else
+                        await movieDetailDisplayWindow.ShowDialog(App.CurrentMainWindow!);
                 }
             });
         }
@@ -102,6 +104,7 @@ public partial class MainWindowViewModel : ObservableObject
     // This constructor is used by the XAML designer.
     public MainWindowViewModel()
     {
+        Movies.CollectionChanged += Movies_CollectionChanged;
     }
 
     public MainWindowViewModel(Database database, BarcodeService barcodeService, MovieService movieService, IAppLogger logger)
@@ -110,6 +113,8 @@ public partial class MainWindowViewModel : ObservableObject
         _barcodeService = barcodeService;
         _movieService = movieService;
         _logger = logger;
+
+        Movies.CollectionChanged += Movies_CollectionChanged;
 
         if (_logger is AppLogger appLogger)
         {
@@ -146,6 +151,11 @@ public partial class MainWindowViewModel : ObservableObject
     {
         LogMessages.Insert(0, message);
         FilterLogs();
+    }
+
+    private void Movies_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(TotalMovies));
     }
 
     private void FilterLogs()
@@ -200,7 +210,7 @@ public partial class MainWindowViewModel : ObservableObject
                     // Update the database
                     if (_database != null)
                     {
-                        await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
+                        movie = await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
                         _logger?.Event($"Database updated, ID: {movie.Id}");
                     }
                 }
@@ -241,7 +251,6 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void AddNewMovie()
     {
-        _logger?.Event("Add New Movie button pressed.");
         _barcodeService?.StartReadingBarcodes();
     }
 

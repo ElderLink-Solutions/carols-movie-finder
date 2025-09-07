@@ -44,11 +44,13 @@ public partial class App : Application
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<IConfiguration>(configuration);
         serviceCollection.AddSingleton<IAppLogger, AppLogger>();
+        serviceCollection.AddSingleton<IShutdownService, ShutdownService>();
         serviceCollection.AddSingleton<Database>(new Database(dbPath));
         serviceCollection.AddSingleton<BarcodeService>(sp =>
             new BarcodeService(
                 sp.GetRequiredService<IAppLogger>(),
-                sp.GetRequiredService<IConfiguration>()
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetRequiredService<IShutdownService>()
             )
         );
         serviceCollection.AddSingleton<MovieService>(sp =>
@@ -86,10 +88,19 @@ public partial class App : Application
 
             desktop.Exit += async (sender, e) =>
             {
-                var barcodeService = Services.GetRequiredService<BarcodeService>();
-                await barcodeService.StopReadingBarcodesAsync();
+                var shutdownService = Services.GetRequiredService<IShutdownService>();
+                var logger = Services.GetRequiredService<IAppLogger>();
+
+                logger.Log("Sending shutdown signal");
+                shutdownService.RequestShutdown();
+
+                await shutdownService.WaitForShutdownAsync(TimeSpan.FromSeconds(5));
+
                 logger.Log("=== MovieFinder Program.cs: Main completed successfully ===");
                 (Services.GetRequiredService<IAppLogger>() as IDisposable)?.Dispose();
+                (Services.GetRequiredService<BarcodeService>() as IDisposable)?.Dispose();
+
+                LibUsbDotNet.UsbDevice.Exit();
             };
         }
 

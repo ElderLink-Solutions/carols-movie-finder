@@ -25,10 +25,33 @@ public class Database
         return _database.Table<Movie>().Where(i => i.Id == id).FirstOrDefaultAsync();
     }
 
-    public Task<int> SaveMovieAsync(Movie movie)
+    public async Task<Movie> SaveMovieAsync(Movie movie)
     {
-        // Upsert: Insert or replace based on unique ImdbID
-        return _database.InsertOrReplaceAsync(movie);
+        Movie? existingMovie = null;
+
+        if (!string.IsNullOrEmpty(movie.ImdbID))
+        {
+            existingMovie = await _database.Table<Movie>().Where(m => m.ImdbID == movie.ImdbID).FirstOrDefaultAsync();
+        }
+        else if (!string.IsNullOrEmpty(movie.Title) && !string.IsNullOrEmpty(movie.Year))
+        {
+            existingMovie = await _database.Table<Movie>()
+                .Where(m => m.Title == movie.Title && m.Year == movie.Year)
+                .FirstOrDefaultAsync();
+        }
+
+        if (existingMovie != null)
+        {
+            // Preserve the ID of the existing record
+            movie.Id = existingMovie.Id;
+            await _database.UpdateAsync(movie);
+        }
+        else
+        {
+            // Insert new movie and let the database generate the ID
+            await _database.InsertAsync(movie);
+        }
+        return movie;
     }
 
     public Task<int> DeleteMovieAsync(Movie movie)

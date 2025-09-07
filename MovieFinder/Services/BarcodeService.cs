@@ -11,19 +11,21 @@ using MovieFinder.Models;
 
 namespace MovieFinder.Services;
 
-public class BarcodeService
+public class BarcodeService : IDisposable
 {
     private readonly IAppLogger _logger;
     private readonly IConfiguration _configuration;
+    private readonly IShutdownService _shutdownService;
     private Task? _barcodeReaderTask;
     private readonly StringBuilder _barcode = new();
 
     public UsbDevice? MyUsbDevice;
 
-    public BarcodeService(IAppLogger logger, IConfiguration configuration)
+    public BarcodeService(IAppLogger logger, IConfiguration configuration, IShutdownService shutdownService)
     {
         _logger = logger;
         _configuration = configuration;
+        _shutdownService = shutdownService;
     }
 
     private int VendorId
@@ -81,6 +83,7 @@ public class BarcodeService
                 return success && MyUsbDevice != null;
             }
             MyUsbDevice = null;
+            _logger.Log("USB device not found or could not be opened. MyUsbDevice set to null.");
             _logger.Log("USB device not found. It might be disconnected or the Vendor/Product ID is incorrect.");
             return false;
         }
@@ -124,42 +127,24 @@ public class BarcodeService
 
     public event Action<string>? BarcodeScanned;
 
-    private CancellationTokenSource? _cancellationTokenSource;
+
 
     public void StartReadingBarcodes()
     {
-        _logger.Log("Attempting to start barcode reading...");
+        _logger.Event("StartReadingBarcodes.");
+        _logger.Information("Attempting to start barcode reading...");
         if (MyUsbDevice == null || !MyUsbDevice.IsOpen)
         {
-            _logger.Log("Barcode scanner not connected or not open. Cannot start reading.");
+            _logger.Warn("Barcode scanner not connected or not open. Cannot start reading.");
             return;
         }
 
-        _cancellationTokenSource = new CancellationTokenSource();
-        _barcodeReaderTask = Task.Run(() => ReadBarcodesLoop(_cancellationTokenSource.Token));
-        _logger.Log($"Started listening for barcodes on thread {_barcodeReaderTask.Id}.");
+        _barcodeReaderTask = Task.Run(() => ReadBarcodesLoop(_shutdownService.ShutdownToken));
+        _shutdownService.RegisterTask(_barcodeReaderTask, "BarcodeReader");
+        _logger.Information($"Started listening for barcodes on thread {_barcodeReaderTask.Id}.");
     }
 
-    public async Task StopReadingBarcodesAsync()
-    {
-        if (_cancellationTokenSource != null)
-        {
-            _logger.Log($"Sending shutdown signal to barcode reader thread {_barcodeReaderTask?.Id}.");
-            _cancellationTokenSource.Cancel();
-            if (_barcodeReaderTask != null)
-            {
-                try
-                {
-                    await _barcodeReaderTask;
-                }
-                catch (TaskCanceledException)
-                {
-                    _logger.Log("Barcode reader task canceled on shutdown.");
-                }
-            }
-            _logger.Log($"Barcode reader thread {_barcodeReaderTask?.Id} has gracefully shut down.");
-        }
-    }
+
 
     private static readonly Dictionary<byte, char> HidScanCodeMap = new()
     {
@@ -235,6 +220,24 @@ public class BarcodeService
         finally
         {
             reader?.Dispose();
+        }
+        _logger.Log("Shutdown signal found, shutting down barcode reader.");
+    }
+
+    public void Dispose()
+    {
+        if (MyUsbDevice != null && MyUsbDevice.IsOpen)
+        {
+            MyUsbDevice.Close();
+            _logger.Log("MyUsbDevice closed and disposed.");
+        }
+        else if (MyUsbDevice != null)
+        {
+            _logger.Log("MyUsbDevice was not open, but was not null. Disposing anyway.");
+        }
+        else
+        {
+            _logger.Log("MyUsbDevice was null. Nothing to dispose.");
         }
     }
 }
