@@ -17,12 +17,12 @@ namespace MovieFinder.ViewModels;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly Database? _database;
-    private readonly BarcodeService? _barcodeService;
+    private readonly IBarcodeService? _barcodeService;
     private readonly MovieService? _movieService;
     private readonly IAppLogger? _logger;
     private readonly PosterService? _posterService;
 
-    public BarcodeService? BarcodeService => _barcodeService;
+    public IBarcodeService? BarcodeService => _barcodeService;
 
     private string _searchQuery = string.Empty;
     public string SearchQuery
@@ -110,7 +110,7 @@ public partial class MainWindowViewModel : ObservableObject
         Movies.CollectionChanged += Movies_CollectionChanged;
     }
 
-    public MainWindowViewModel(Database database, BarcodeService barcodeService, MovieService movieService, IAppLogger logger, PosterService posterService)
+    public MainWindowViewModel(Database database, IBarcodeService barcodeService, MovieService movieService, IAppLogger logger, PosterService posterService)
     {
         _database = database;
         _barcodeService = barcodeService;

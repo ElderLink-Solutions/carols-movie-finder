@@ -11,7 +11,7 @@ using MovieFinder.Models;
 
 namespace MovieFinder.Services;
 
-public class BarcodeService : IDisposable
+public class BarcodeService : IDisposable, IBarcodeService
 {
     private readonly IAppLogger _logger;
     private readonly IConfiguration _configuration;

@@ -46,13 +46,18 @@ public partial class App : Application
         serviceCollection.AddSingleton<IAppLogger, AppLogger>();
         serviceCollection.AddSingleton<IShutdownService, ShutdownService>();
         serviceCollection.AddSingleton<Database>(sp => new Database(dbPath, sp.GetRequiredService<IAppLogger>()));
-        serviceCollection.AddSingleton<BarcodeService>(sp =>
-            new BarcodeService(
-                sp.GetRequiredService<IAppLogger>(),
-                sp.GetRequiredService<IConfiguration>(),
-                sp.GetRequiredService<IShutdownService>()
-            )
-        );
+
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+        {
+            serviceCollection.AddSingleton<IBarcodeService, BarcodeService>();
+            Console.WriteLine("Using LibUsbBarcodeService for Linux.");
+        }
+        else
+        {
+            serviceCollection.AddSingleton<IBarcodeService, KeyboardWedgeBarcodeService>();
+            Console.WriteLine("Using KeyboardWedgeBarcodeService.");
+        }
+
         serviceCollection.AddSingleton<MovieService>(sp =>
             new MovieService(
                 sp.GetRequiredService<IConfiguration>(),
@@ -67,7 +72,7 @@ public partial class App : Application
         serviceCollection.AddTransient<MainWindowViewModel>(sp =>
             new MainWindowViewModel(
                 sp.GetRequiredService<Database>(),
-                sp.GetRequiredService<BarcodeService>(),
+                sp.GetRequiredService<IBarcodeService>(),
                 sp.GetRequiredService<MovieService>(),
                 sp.GetRequiredService<IAppLogger>(),
                 sp.GetRequiredService<PosterService>()
@@ -106,9 +111,6 @@ public partial class App : Application
 
                 logger.Log("=== MovieFinder Program.cs: Main completed successfully ===");
                 (Services.GetRequiredService<IAppLogger>() as IDisposable)?.Dispose();
-                (Services.GetRequiredService<BarcodeService>() as IDisposable)?.Dispose();
-
-                LibUsbDotNet.UsbDevice.Exit();
             };
         }
 
