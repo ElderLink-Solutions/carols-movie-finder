@@ -6,6 +6,8 @@ using System;
 using Avalonia.Media.Imaging;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using MovieFinder.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MovieFinder.Views;
 
@@ -14,6 +16,12 @@ public partial class MovieDetailDisplayWindow : Window
     public MovieDetailDisplayWindow()
     {
         InitializeComponent();
+        var logger = App.Services?.GetRequiredService<IAppLogger>();
+        logger?.Log("MovieDetailDisplayWindow created.");
+
+        this.Closing += (s, e) => logger?.Log("MovieDetailDisplayWindow closing.");
+        this.Closed += (s, e) => logger?.Log("MovieDetailDisplayWindow closed.");
+
         this.DataContextChanged += (sender, args) =>
         {
             if (DataContext is MovieDetailWindowViewModel vm)

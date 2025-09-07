@@ -45,10 +45,18 @@ public class Database
 
         if (existingMovie != null)
         {
-            _logger.Log($"Found existing movie with ID: {existingMovie.Id}. Updating.");
-            // Preserve the ID of the existing record
-            movie.Id = existingMovie.Id;
-            await _database.UpdateAsync(movie);
+            if (existingMovie.Id == 0)
+            {
+                _logger.Warn($"Existing movie '{existingMovie.Title}' has ID 0. This should not happen. Deleting and re-inserting.");
+                await _database.DeleteAsync(existingMovie);
+                await _database.InsertAsync(movie);
+            }
+            else
+            {
+                _logger.Log($"Found existing movie with ID: {existingMovie.Id}. Updating.");
+                movie.Id = existingMovie.Id;
+                await _database.UpdateAsync(movie);
+            }
         }
         else
         {

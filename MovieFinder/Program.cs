@@ -32,11 +32,13 @@ class Program
         }
         catch (Exception ex)
         {
-            // It's not possible to log here with the DI container,
-            // as it's configured and used within the Avalonia application lifecycle.
-            // Logging for startup errors should be handled in App.axaml.cs.
-            Console.WriteLine($"Unhandled exception: {ex}");
+            Console.WriteLine($"Unhandled exception in Main: {ex}");
             throw;
+        }
+        finally
+        {
+            _mutex?.ReleaseMutex();
+            _mutex?.Dispose();
         }
     }
 

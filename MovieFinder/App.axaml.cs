@@ -97,6 +97,8 @@ public partial class App : Application
                 var shutdownService = Services.GetRequiredService<IShutdownService>();
                 var logger = Services.GetRequiredService<IAppLogger>();
 
+                logger.Log("Desktop exit event raised.");
+
                 logger.Log("Sending shutdown signal");
                 shutdownService.RequestShutdown();
 

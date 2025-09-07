@@ -114,7 +114,7 @@
                     <!-- Movies List -->
                     <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="16">
                         <ListBox ItemsSource="{Binding Movies}" SelectionMode="Single" Background="Transparent" BorderThickness="0"
-                                 SelectedItem="{Binding SelectedMovie, Mode=TwoWay}" PointerReleased="MovieItem_PointerReleased">
+                                 SelectedItem="{Binding SelectedMovie, Mode=TwoWay}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Spacing="8">

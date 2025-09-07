@@ -13,24 +13,11 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-    }
+        var logger = App.Services?.GetRequiredService<IAppLogger>();
+        logger?.Log("MainWindow created.");
 
-    public async void MovieItem_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)
-    {
-        if (DataContext is MovieFinder.ViewModels.MainWindowViewModel vm && sender is Avalonia.Controls.ListBox listBox && listBox.SelectedItem is MovieFinder.Models.Movie movie)
-        {
-            var logger = App.Services?.GetRequiredService<IAppLogger>();
-            var posterService = App.Services?.GetRequiredService<PosterService>();
-            var movieDetailViewModel = new MovieFinder.ViewModels.MovieDetailWindowViewModel(movie, logger, posterService);
-            var movieDetailWindow = new MovieFinder.Views.MovieDetailDisplayWindow
-            {
-                DataContext = movieDetailViewModel
-            };
-            if (App.CurrentMainWindow != null)
-                await movieDetailWindow.ShowDialog(App.CurrentMainWindow);
-            else
-                await movieDetailWindow.ShowDialog(this);
-        }
+        this.Closing += (s, e) => logger?.Log("MainWindow closing.");
+        this.Closed += (s, e) => logger?.Log("MainWindow closed.");
     }
 
     public async void LogItem_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)

@@ -17,6 +17,7 @@ public class BarcodeService : IDisposable
     private readonly IConfiguration _configuration;
     private readonly IShutdownService _shutdownService;
     private Task? _barcodeReaderTask;
+    private CancellationTokenSource? _readingCts;
     private readonly StringBuilder _barcode = new();
 
     public UsbDevice? MyUsbDevice;
@@ -144,9 +145,21 @@ public class BarcodeService : IDisposable
             return;
         }
 
-        _barcodeReaderTask = Task.Run(() => ReadBarcodesLoop(_shutdownService.ShutdownToken));
+        _readingCts = new CancellationTokenSource();
+        var token = CancellationTokenSource.CreateLinkedTokenSource(_shutdownService.ShutdownToken, _readingCts.Token).Token;
+
+        _barcodeReaderTask = Task.Run(() => ReadBarcodesLoop(token));
         _shutdownService.RegisterTask(_barcodeReaderTask, "BarcodeReader");
         _logger.Information($"Started listening for barcodes on thread {_barcodeReaderTask.Id}.");
+    }
+
+    public void StopReadingBarcodes()
+    {
+        if (_readingCts != null && !_readingCts.IsCancellationRequested)
+        {
+            _logger.Event("StopReadingBarcodes.");
+            _readingCts.Cancel();
+        }
     }
 
 
@@ -213,6 +226,15 @@ public class BarcodeService : IDisposable
                     break;
                 }
             }
+
+            if (_shutdownService.ShutdownToken.IsCancellationRequested)
+            {
+                _logger.Log("Shutdown service requested cancellation.");
+            }
+            if (_readingCts?.IsCancellationRequested == true)
+            {
+                _logger.Log("Reading cancellation requested.");
+            }
         }
         catch (OperationCanceledException)
         {
@@ -226,11 +248,12 @@ public class BarcodeService : IDisposable
         {
             reader?.Dispose();
         }
-        _logger.Log("Shutdown signal found, shutting down barcode reader.");
+        _logger.Log("Barcode reader loop finished.");
     }
 
     public void Dispose()
     {
+        StopReadingBarcodes();
         if (MyUsbDevice != null && MyUsbDevice.IsOpen)
         {
             MyUsbDevice.Close();

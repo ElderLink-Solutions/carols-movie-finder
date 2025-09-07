@@ -63,6 +63,7 @@ public partial class MovieDetailWindowViewModel : ObservableObject
     {
         _logger = logger; // Initialize logger
         _posterService = posterService;
+        _logger?.Log($"MovieDetailWindowViewModel created for movie: {movie.Title}");
         Movie = movie; // Assign the movie object
         Title = movie.Title;
         Year = movie.Year;
@@ -133,6 +134,7 @@ public partial class MovieDetailWindowViewModel : ObservableObject
     [RelayCommand]
     private void Save()
     {
+        _logger?.Log("Save command executed.");
         Movie.ShelfLocation = ShelfLocation;
         Movie.BorrowedBy = BorrowedBy;
         CloseRequested?.Invoke(true);
@@ -141,6 +143,7 @@ public partial class MovieDetailWindowViewModel : ObservableObject
     [RelayCommand]
     private void Cancel()
     {
+        _logger?.Log("Cancel command executed.");
         CloseRequested?.Invoke(false);
     }
 }

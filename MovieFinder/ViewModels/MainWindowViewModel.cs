@@ -69,6 +69,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnSelectedMovieChanged(Movie? value)
     {
+        _logger?.Log($"OnSelectedMovieChanged called with movie: {value?.Title}");
         if (value != null)
         {
             // Open MovieDetailDisplayWindow
@@ -173,6 +174,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private async void OnBarcodeScanned(string barcode)
     {
+        _logger?.Log($"OnBarcodeScanned started for barcode: {barcode}");
         try
         {
             _logger?.Event($"Barcode Scanned: {barcode}");
@@ -192,6 +194,7 @@ public partial class MainWindowViewModel : ObservableObject
                 {
                     try
                     {
+                        _logger?.Log("Creating and showing MovieDetailDisplayWindow.");
                         var movieDetailViewModel = new MovieDetailWindowViewModel(movie, _logger, _posterService);
                         var movieDetailWindow = new MovieDetailDisplayWindow
                         {
@@ -236,6 +239,7 @@ public partial class MainWindowViewModel : ObservableObject
         {
             _logger?.Error($"Error in OnBarcodeScanned: {ex.Message}\n{ex.StackTrace}");
         }
+        _logger?.Log($"OnBarcodeScanned finished for barcode: {barcode}");
     }
 
     [RelayCommand]
