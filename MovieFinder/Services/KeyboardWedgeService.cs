@@ -29,12 +29,14 @@ namespace MovieFinder.Services
         {
             _logger.LogInformation("Starting keyboard wedge barcode service...");
             _isListening = true;
+            ScannerStatusChanged?.Invoke(GetScannerStatus());
         }
 
         public void StopReadingBarcodes()
         {
             _logger.LogInformation("Stopping keyboard wedge barcode service...");
             _isListening = false;
+            ScannerStatusChanged?.Invoke(GetScannerStatus());
         }
 
         public string GetScannerStatus()
@@ -42,6 +44,7 @@ namespace MovieFinder.Services
             _logger.LogDebug("Getting scanner status...");
             var status = _isListening ? "LISTENING" : "IDLE";
             _logger.LogDebug("Scanner status: {Status}", status);
+            // ScannerStatusChanged?.Invoke(status); // Already invoked in Start/StopReadingBarcodes
             return status;
         }
 

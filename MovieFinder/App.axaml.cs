@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MovieFinder.Services;
 using MovieFinder.ViewModels;
 using MovieFinder.Views;
@@ -47,15 +48,26 @@ public partial class App : Application
         serviceCollection.AddSingleton<IShutdownService, ShutdownService>();
         serviceCollection.AddSingleton<Database>(sp => new Database(dbPath, sp.GetRequiredService<IAppLogger>()));
 
-        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+        // Add logging services
+        serviceCollection.AddLogging(configure => configure.AddConsole());
+
+        // Determine BarcodeService based on ENVIRONMENT setting
+        var environment = configuration["MODE"];
+        if (environment?.ToLower() == "libusb")
         {
             serviceCollection.AddSingleton<IBarcodeService, BarcodeService>();
-            Console.WriteLine("Using LibUsbBarcodeService for Linux.");
+            Console.WriteLine("Using LibUsbBarcodeService mode.");
+        }
+        else if (environment?.ToLower() == "keyboardwedge")
+        {
+            serviceCollection.AddSingleton<IBarcodeService, KeyboardWedgeBarcodeService>();
+            Console.WriteLine("Using KeyboardWedgeBarcodeService mode.");
         }
         else
         {
+            // Fallback or throw an error if ENVIRONMENT is not recognized
+            Console.WriteLine($"Unknown ENVIRONMENT setting: {environment}. Defaulting to KeyboardWedgeBarcodeService.");
             serviceCollection.AddSingleton<IBarcodeService, KeyboardWedgeBarcodeService>();
-            Console.WriteLine("Using KeyboardWedgeBarcodeService.");
         }
 
         serviceCollection.AddSingleton<MovieService>(sp =>
@@ -82,10 +94,11 @@ public partial class App : Application
         Services = serviceCollection.BuildServiceProvider();
 
         var logger = Services.GetRequiredService<IAppLogger>();
-        if (logger is AppLogger appLogger)
-        {
-            appLogger.Initialize(Console.WriteLine);
-        }
+        // The following line is no longer needed as AddConsole() handles console output for ILogger
+        // if (logger is AppLogger appLogger)
+        // {
+        //     appLogger.Initialize(Console.WriteLine);
+        // }
 
         logger.Log("=== MovieFinder Program.cs: Main starting ===");
 

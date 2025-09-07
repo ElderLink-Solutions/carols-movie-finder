@@ -33,6 +33,18 @@ public partial class MainWindow : Window
         this.Closing += (s, e) => logger2?.Log("MainWindow closing.");
         this.Closed += (s, e) => logger2?.Log("MainWindow closed.");
 
+        // Wire up TextInput to KeyboardWedgeBarcodeService
+        if (App.Services?.GetService<IBarcodeService>() is KeyboardWedgeBarcodeService keyboardWedgeService)
+        {
+            this.TextInput += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Text))
+                {
+                    keyboardWedgeService.HandleTextInput(e.Text);
+                }
+            };
+        }
+
         // Hide splash image after window is loaded
         this.Opened += (_, __) =>
         {
