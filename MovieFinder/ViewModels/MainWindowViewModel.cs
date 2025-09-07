@@ -125,7 +125,7 @@ public partial class MainWindowViewModel : ObservableObject
             appLogger.OnLogMessage += OnLogMessageReceived;
         }
 
-        _ = LoadMovies().ContinueWith(t => 
+        _ = LoadMovies().ContinueWith(t =>
         {
             if (t.IsFaulted)
             {
@@ -268,6 +268,7 @@ public partial class MainWindowViewModel : ObservableObject
         BarcodeScannerStatus = "Button Pressed: Search Movies";
         if (_database is null) return;
 
+        SelectedMovie = null;
         Movies.Clear();
         if (string.IsNullOrWhiteSpace(SearchQuery))
         {
@@ -302,6 +303,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
+            SelectedMovie = null;
             Movies.Clear();
             foreach (var movie in movies)
             {
