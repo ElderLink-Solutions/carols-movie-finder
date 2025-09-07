@@ -192,9 +192,6 @@ public partial class MainWindowViewModel : ObservableObject
                 {
                     try
                     {
-                        Movies.Clear();
-                        Movies.Add(movie);
-
                         var movieDetailViewModel = new MovieDetailWindowViewModel(movie, _logger, _posterService);
                         var movieDetailWindow = new MovieDetailDisplayWindow
                         {
@@ -211,6 +208,7 @@ public partial class MainWindowViewModel : ObservableObject
                         {
                             result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow!);
                         }
+                        _barcodeService?.StopReadingBarcodes();
 
                         if (result == true) // Save button was clicked
                         {
@@ -219,6 +217,7 @@ public partial class MainWindowViewModel : ObservableObject
                             {
                                 movie = await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
                                 _logger?.Event($"Database updated, ID: {movie.Id}");
+                                await LoadMovies(); // Reload movies to reflect changes
                             }
                         }
                     }
@@ -275,9 +274,12 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (_database is null) return;
 
+        Movies.Clear();
         var movies = await _database.GetMoviesAsync();
+        _logger?.Log($"Loaded {movies.Count} movies from database.");
         foreach (var movie in movies)
         {
+            _logger?.Log($"  - Movie: {movie.Title}, ID: {movie.Id}");
             Movies.Add(movie);
         }
     }
