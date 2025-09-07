@@ -37,7 +37,7 @@ public class MovieService
             var movie = await GetMovieDetailsFromOmdb(movieIdentifier);
             return movie;
         }
-        
+
         return null;
     }
 
@@ -103,7 +103,7 @@ public class MovieService
 
         if (title != null)
         {
-            var blacklistedTerms = new[] { "[Double Sided]" };
+            var blacklistedTerms = new[] { "[Double Sided]", "[Blu-ray]" };
             foreach (var term in blacklistedTerms)
             {
                 title = title.Replace(term, "");
@@ -126,7 +126,7 @@ public class MovieService
         {
             _logger.Event($"Looking up title '{title}' in Cache/files.json");
             var filesJson = await File.ReadAllTextAsync("Cache/files.json");
-               var filesData = JObject.Parse(filesJson);
+            var filesData = JObject.Parse(filesJson);
             var fileEntry = filesData?["files"]?.FirstOrDefault(f => WebUtility.UrlDecode(f["t"]?.ToString()) == title);
             if (fileEntry != null)
             {
@@ -187,7 +187,7 @@ public class MovieService
                 await File.WriteAllTextAsync(cachePath, response);
 
                 var filesJson = await File.ReadAllTextAsync("Cache/files.json");
-                     var filesData = JObject.Parse(filesJson);
+                var filesData = JObject.Parse(filesJson);
                 var filesArray = filesData["files"] as JArray;
                 if (filesArray != null && !filesArray.Any(f => f["imdbId"]?.ToString() == movie.ImdbID))
                 {

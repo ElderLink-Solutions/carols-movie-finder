@@ -13,8 +13,8 @@ namespace MovieFinder
             {
                 return status.ToUpper() switch
                 {
-                    "CONNECTED" => Brushes.Green,
-                    "DISCONNECTED" => Brushes.Red,
+                    "CONNECTED" => Brushes.LawnGreen,
+                    "DISCONNECTED" => Brushes.Salmon,
                     _ => Brushes.Gray
                 };
             }
@@ -22,7 +22,7 @@ namespace MovieFinder
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        { 
+        {
             throw new NotImplementedException();
         }
     }
