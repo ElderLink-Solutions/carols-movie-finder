@@ -57,6 +57,7 @@ public class BarcodeService : IDisposable, IBarcodeService
     {
         string result = IsScannerConnected() ? "CONNECTED" : "DISCONNECTED";
         _logger.Log($"GetScannerStatus: {result}");
+        ScannerStatusChanged?.Invoke(result);
         return result;
     }
 
@@ -81,16 +82,19 @@ public class BarcodeService : IDisposable, IBarcodeService
                 if (success && MyUsbDevice != null)
                 {
                     _logger.Log("Successfully opened USB device.");
+                    ScannerStatusChanged?.Invoke("CONNECTED");
                 }
                 else
                 {
                     _logger.Log("Failed to open USB device. This might be a permissions issue or the device is in use.");
+                    ScannerStatusChanged?.Invoke("DISCONNECTED");
                 }
                 return success && MyUsbDevice != null;
             }
             MyUsbDevice = null;
             _logger.Log("USB device not found or could not be opened. MyUsbDevice set to null.");
             _logger.Log("USB device not found. It might be disconnected or the Vendor/Product ID is incorrect.");
+            ScannerStatusChanged?.Invoke("DISCONNECTED");
             return false;
         }
         catch (Exception ex)
@@ -132,6 +136,7 @@ public class BarcodeService : IDisposable, IBarcodeService
     }
 
     public event Action<string>? BarcodeScanned;
+    public event Action<string>? ScannerStatusChanged;
 
 
 

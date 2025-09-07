@@ -10,14 +10,38 @@ namespace MovieFinder.Views;
 
 public partial class MainWindow : Window
 {
+    private Image? _splashImage;
+
     public MainWindow()
     {
         InitializeComponent();
-        var logger = App.Services?.GetRequiredService<IAppLogger>();
-        logger?.Log("MainWindow created.");
 
-        this.Closing += (s, e) => logger?.Log("MainWindow closing.");
-        this.Closed += (s, e) => logger?.Log("MainWindow closed.");
+        // Set the window icon to favicon.ico
+        try
+        {
+            this.Icon = new WindowIcon("favicon.ico");
+        }
+        catch (Exception ex)
+        {
+            var logger = App.Services?.GetRequiredService<IAppLogger>();
+            logger?.Log($"Failed to set window icon: {ex.Message}");
+        }
+
+        var logger2 = App.Services?.GetRequiredService<IAppLogger>();
+        logger2?.Log("MainWindow created.");
+
+        this.Closing += (s, e) => logger2?.Log("MainWindow closing.");
+        this.Closed += (s, e) => logger2?.Log("MainWindow closed.");
+
+        // Hide splash image after window is loaded
+        this.Opened += (_, __) =>
+        {
+            _splashImage = this.FindControl<Image>("SplashImage");
+            if (_splashImage != null)
+            {
+                _splashImage.IsVisible = false;
+            }
+        };
     }
 
     public async void LogItem_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)
