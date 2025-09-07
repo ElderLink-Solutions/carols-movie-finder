@@ -61,6 +61,11 @@ public class BarcodeService : IDisposable
 
     public bool IsScannerConnected()
     {
+        if (MyUsbDevice != null && MyUsbDevice.IsOpen)
+        {
+            return true;
+        }
+
         _logger.Log($"IsScannerConnected: Attempting to find USB device with Vendor ID: 0x{VendorId:X} and Product ID: 0x{ProductId:X}...");
         try
         {

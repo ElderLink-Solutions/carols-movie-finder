@@ -19,7 +19,9 @@ public partial class MainWindow : Window
     {
         if (DataContext is MovieFinder.ViewModels.MainWindowViewModel vm && sender is Avalonia.Controls.ListBox listBox && listBox.SelectedItem is MovieFinder.Models.Movie movie)
         {
-            var movieDetailViewModel = new MovieFinder.ViewModels.MovieDetailWindowViewModel(movie);
+            var logger = App.Services?.GetRequiredService<IAppLogger>();
+            var posterService = App.Services?.GetRequiredService<PosterService>();
+            var movieDetailViewModel = new MovieFinder.ViewModels.MovieDetailWindowViewModel(movie, logger, posterService);
             var movieDetailWindow = new MovieFinder.Views.MovieDetailDisplayWindow
             {
                 DataContext = movieDetailViewModel

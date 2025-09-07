@@ -8,10 +8,12 @@ namespace MovieFinder.Services;
 public class Database
 {
     private readonly SQLiteAsyncConnection _database;
+    private readonly IAppLogger _logger;
 
-    public Database(string dbPath)
+    public Database(string dbPath, IAppLogger logger)
     {
         _database = new SQLiteAsyncConnection(dbPath);
+        _logger = logger;
         _database.CreateTableAsync<Movie>().Wait();
     }
 
@@ -27,6 +29,7 @@ public class Database
 
     public async Task<Movie> SaveMovieAsync(Movie movie)
     {
+        _logger.Log($"Saving movie. ID before save: {movie.Id}, ImdbID: {movie.ImdbID}");
         Movie? existingMovie = null;
 
         if (!string.IsNullOrEmpty(movie.ImdbID))
@@ -42,15 +45,17 @@ public class Database
 
         if (existingMovie != null)
         {
+            _logger.Log($"Found existing movie with ID: {existingMovie.Id}. Updating.");
             // Preserve the ID of the existing record
             movie.Id = existingMovie.Id;
             await _database.UpdateAsync(movie);
         }
         else
         {
-            // Insert new movie and let the database generate the ID
+            _logger.Log("No existing movie found. Inserting new movie.");
             await _database.InsertAsync(movie);
         }
+        _logger.Log($"Movie saved. ID after save: {movie.Id}");
         return movie;
     }
 

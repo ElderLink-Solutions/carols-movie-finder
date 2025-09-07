@@ -14,6 +14,7 @@ namespace MovieFinder.ViewModels;
 public partial class MovieDetailWindowViewModel : ObservableObject
 {
     private readonly IAppLogger? _logger; // Added
+    private readonly PosterService? _posterService;
 
     public Action<bool>? CloseRequested { get; set; }
     public Action<string>? OpenFullJsonDetailsRequested { get; set; }
@@ -58,9 +59,10 @@ public partial class MovieDetailWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _borrowedBy = string.Empty;
 
-    public MovieDetailWindowViewModel(Movie movie, IAppLogger? logger = null)
+    public MovieDetailWindowViewModel(Movie movie, IAppLogger? logger, PosterService? posterService)
     {
         _logger = logger; // Initialize logger
+        _posterService = posterService;
         Movie = movie; // Assign the movie object
         Title = movie.Title;
         Year = movie.Year;
@@ -73,14 +75,14 @@ public partial class MovieDetailWindowViewModel : ObservableObject
         ShelfLocation = movie.ShelfLocation ?? string.Empty; // Initialize from movie
         BorrowedBy = movie.BorrowedBy ?? string.Empty; // Initialize from movie
 
-        if (!string.IsNullOrEmpty(movie.Poster))
+        if (!string.IsNullOrEmpty(movie.Poster) && !string.IsNullOrEmpty(movie.ImdbID))
         {
             Poster = movie.Poster;
-            _ = LoadPosterImage(Poster); // Asynchronously load poster
+            _ = LoadPosterImage(movie.ImdbID, movie.Poster); // Asynchronously load poster
         }
         else
         {
-            _logger?.Log($"No poster URL found for movie: {movie.Title}");
+            _logger?.Log($"No poster URL or ImdbID found for movie: {movie.Title}");
         }
 
         if (!string.IsNullOrEmpty(movie.RawOmdbJson))
@@ -93,29 +95,25 @@ public partial class MovieDetailWindowViewModel : ObservableObject
         }
     }
 
-    private async Task LoadPosterImage(string url)
+    private async Task LoadPosterImage(string imdbId, string url)
     {
-        if (string.IsNullOrEmpty(url) || url == "N/A")
+        if (string.IsNullOrEmpty(url) || url == "N/A" || _posterService == null)
         {
-            _logger?.Log($"Invalid poster URL: {url}");
+            _logger?.Log($"Invalid poster URL or poster service not available: {url}");
             return;
         }
 
         try
         {
-            using (var httpClient = new HttpClient())
+            PosterImage = await _posterService.GetPosterAsync(imdbId, url);
+            if(PosterImage != null)
             {
-                var imageBytes = await httpClient.GetByteArrayAsync(url);
-                using (var stream = new System.IO.MemoryStream(imageBytes))
-                {
-                    PosterImage = new Bitmap(stream);
-                }
+                _logger?.Log($"Poster loaded successfully for {imdbId}");
             }
-            _logger?.Log($"Poster loaded successfully from {url}");
         }
         catch (Exception ex)
         {
-            _logger?.Error($"Failed to load poster from {url}: {ex.Message}");
+            _logger?.Error($"Failed to load poster for {imdbId}: {ex.Message}");
         }
     }
 

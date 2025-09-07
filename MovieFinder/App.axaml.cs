@@ -45,7 +45,7 @@ public partial class App : Application
         serviceCollection.AddSingleton<IConfiguration>(configuration);
         serviceCollection.AddSingleton<IAppLogger, AppLogger>();
         serviceCollection.AddSingleton<IShutdownService, ShutdownService>();
-        serviceCollection.AddSingleton<Database>(new Database(dbPath));
+        serviceCollection.AddSingleton<Database>(sp => new Database(dbPath, sp.GetRequiredService<IAppLogger>()));
         serviceCollection.AddSingleton<BarcodeService>(sp =>
             new BarcodeService(
                 sp.GetRequiredService<IAppLogger>(),
@@ -59,12 +59,18 @@ public partial class App : Application
                 sp.GetRequiredService<IAppLogger>()
             )
         );
+        serviceCollection.AddSingleton<PosterService>(sp =>
+            new PosterService(
+                sp.GetRequiredService<IAppLogger>()
+            )
+        );
         serviceCollection.AddTransient<MainWindowViewModel>(sp =>
             new MainWindowViewModel(
                 sp.GetRequiredService<Database>(),
                 sp.GetRequiredService<BarcodeService>(),
                 sp.GetRequiredService<MovieService>(),
-                sp.GetRequiredService<IAppLogger>()
+                sp.GetRequiredService<IAppLogger>(),
+                sp.GetRequiredService<PosterService>()
             )
         );
 

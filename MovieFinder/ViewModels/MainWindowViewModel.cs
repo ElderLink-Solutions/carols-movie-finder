@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MovieFinder.Models;
@@ -19,6 +20,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly BarcodeService? _barcodeService;
     private readonly MovieService? _movieService;
     private readonly IAppLogger? _logger;
+    private readonly PosterService? _posterService;
 
     public BarcodeService? BarcodeService => _barcodeService;
 
@@ -76,7 +78,7 @@ public partial class MainWindowViewModel : ObservableObject
                 {
                     var cachePath = $"Cache/OMDB/{value.ImdbID}.json";
                     // No need to read from cache or parse JObject here, RawOmdbJson is in the Movie object
-                    var movieDetailDisplayViewModel = new MovieDetailWindowViewModel(value, _logger);
+                    var movieDetailDisplayViewModel = new MovieDetailWindowViewModel(value, _logger, _posterService);
                     var movieDetailDisplayWindow = new MovieDetailDisplayWindow
                     {
                         DataContext = movieDetailDisplayViewModel
@@ -107,12 +109,13 @@ public partial class MainWindowViewModel : ObservableObject
         Movies.CollectionChanged += Movies_CollectionChanged;
     }
 
-    public MainWindowViewModel(Database database, BarcodeService barcodeService, MovieService movieService, IAppLogger logger)
+    public MainWindowViewModel(Database database, BarcodeService barcodeService, MovieService movieService, IAppLogger logger, PosterService posterService)
     {
         _database = database;
         _barcodeService = barcodeService;
         _movieService = movieService;
         _logger = logger;
+        _posterService = posterService;
 
         Movies.CollectionChanged += Movies_CollectionChanged;
 
@@ -170,55 +173,69 @@ public partial class MainWindowViewModel : ObservableObject
 
     private async void OnBarcodeScanned(string barcode)
     {
-        _logger?.Event($"Barcode Scanned: {barcode}");
-        if (_movieService == null)
+        try
         {
-            _logger?.Log("MovieService is not initialized.");
-            return;
-        }
-
-        var movie = await _movieService.FetchMovieDetailsFromBarcode(barcode);
-        if (movie != null)
-        {
-            _logger?.Event($"Found movie: {movie.Title}");
-
-            // Open the MovieDetailWindow
-            _ = Dispatcher.UIThread.InvokeAsync(async () =>
+            _logger?.Event($"Barcode Scanned: {barcode}");
+            if (_movieService == null)
             {
-                Movies.Clear();
-                Movies.Add(movie);
+                _logger?.Log("MovieService is not initialized.");
+                return;
+            }
 
-                var movieDetailViewModel = new MovieDetailWindowViewModel(movie, _logger);
-                var movieDetailWindow = new MovieDetailDisplayWindow
-                {
-                    DataContext = movieDetailViewModel
-                };
+            var movie = await _movieService.FetchMovieDetailsFromBarcode(barcode);
+            if (movie != null)
+            {
+                _logger?.Event($"Found movie: {movie.Title}");
 
-                // Show the window and wait for a result, only if owner is not null
-                bool? result = null;
-                if (App.CurrentMainWindow != null)
+                // Open the MovieDetailWindow
+                await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
-                    result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
-                }
-                else
-                {
-                    result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow!);
-                }
-
-                if (result == true) // Save button was clicked
-                {
-                    // Update the database
-                    if (_database != null)
+                    try
                     {
-                        movie = await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
-                        _logger?.Event($"Database updated, ID: {movie.Id}");
+                        Movies.Clear();
+                        Movies.Add(movie);
+
+                        var movieDetailViewModel = new MovieDetailWindowViewModel(movie, _logger, _posterService);
+                        var movieDetailWindow = new MovieDetailDisplayWindow
+                        {
+                            DataContext = movieDetailViewModel
+                        };
+
+                        // Show the window and wait for a result, only if owner is not null
+                        bool? result = null;
+                        if (App.CurrentMainWindow != null)
+                        {
+                            result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow);
+                        }
+                        else
+                        {
+                            result = await movieDetailWindow.ShowDialog<bool?>(App.CurrentMainWindow!);
+                        }
+
+                        if (result == true) // Save button was clicked
+                        {
+                            // Update the database
+                            if (_database != null)
+                            {
+                                movie = await _database.SaveMovieAsync(movie); // Need to implement SaveMovieAsync in Database.cs
+                                _logger?.Event($"Database updated, ID: {movie.Id}");
+                            }
+                        }
                     }
-                }
-            });
+                    catch (Exception ex)
+                    {
+                        _logger?.Error($"Error in barcode scanned UI thread: {ex.Message}\n{ex.StackTrace}");
+                    }
+                });
+            }
+            else
+            {
+                _logger?.Log($"Could not find a movie for barcode {barcode}");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _logger?.Log($"Could not find a movie for barcode {barcode}");
+            _logger?.Error($"Error in OnBarcodeScanned: {ex.Message}\n{ex.StackTrace}");
         }
     }
 

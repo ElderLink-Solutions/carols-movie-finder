@@ -1,8 +1,12 @@
 {
   "files": [
     {
-      "ttId": "tt0094012",
-      "poster": "MV5BNTUyMjA5NDktNWY5Ny00ZWU4LWE4Y2ItMDYzZTk0NzU3ZWMyXkEyXkFqcGc@._V1_SX300.jpg"
+      "imdbId": "tt0094012",
+      "filePath": "Cache/Posters/tt0094012.jpg"
+    },
+    {
+      "imdbId": "tt0102798",
+      "filePath": "Cache/Posters/tt0102798.jpg"
     }
   ]
 }
