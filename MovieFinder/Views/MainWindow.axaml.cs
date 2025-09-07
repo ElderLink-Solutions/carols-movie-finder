@@ -74,6 +74,8 @@ public partial class MainWindow : Window
 
     public void CloseWindow(object? sender, RoutedEventArgs e)
     {
+        var logger = App.Services?.GetRequiredService<IAppLogger>();
+        logger?.Log("Closing Application.");
         Close();
     }
 }

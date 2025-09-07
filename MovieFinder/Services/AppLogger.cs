@@ -79,10 +79,10 @@ public class AppLogger : IAppLogger, IDisposable
             return;
         }
 
-        var logMessage = $"[{level.ToString().ToUpper()}] {message}";
+        var logMessage = $"[{level.ToString().ToUpper()}] {DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}";
         OnLogMessage?.Invoke(logMessage);
         _logAction?.Invoke(logMessage);
-        _logWriter?.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {logMessage}");
+        _logWriter?.WriteLine(logMessage);
     }
 
     public void Dispose()
@@ -90,5 +90,3 @@ public class AppLogger : IAppLogger, IDisposable
         _logWriter?.Dispose();
     }
 }
-
-
