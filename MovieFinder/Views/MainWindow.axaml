@@ -122,7 +122,6 @@
                 <!-- Search Section -->
                 <StackPanel Grid.Column="1" DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10">
                     <TextBox Text="{Binding SearchQuery}" Watermark="Search for a movie..." Width="300"/>
-                    <Button Command="{Binding SearchMoviesCommand}" Content="Search"/>
                 </StackPanel>
             </Grid>
 
@@ -130,7 +129,7 @@
                 <Grid ColumnDefinitions="2*, *">
                     <!-- Movies List -->
                     <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="16">
-                        <ListBox ItemsSource="{Binding Movies}" SelectionMode="Single" Background="Transparent" BorderThickness="0"
+                        <ListBox ItemsSource="{Binding FilteredMovies}" SelectionMode="Single" Background="Transparent" BorderThickness="0"
                                  SelectedItem="{Binding SelectedMovie, Mode=TwoWay}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>

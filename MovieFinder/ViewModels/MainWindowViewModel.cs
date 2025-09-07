@@ -24,12 +24,8 @@ public partial class MainWindowViewModel : ObservableObject
 
     public IBarcodeService? BarcodeService => _barcodeService;
 
+    [ObservableProperty]
     private string _searchQuery = string.Empty;
-    public string SearchQuery
-    {
-        get => _searchQuery;
-        set => SetProperty(ref _searchQuery, value);
-    }
 
     private string _barcodeScannerStatus = "DISCONNECTED"; // Default status
     public string BarcodeScannerStatus
@@ -52,14 +48,39 @@ public partial class MainWindowViewModel : ObservableObject
         set => SetProperty(ref _csvFilePath, value);
     }
 
-    public ObservableCollection<Movie> Movies { get; } = new();
+    // Holds all movies loaded from the database
+    public ObservableCollection<Movie> AllMovies { get; } = new();
+    // Holds only the movies matching the current search query
+    public ObservableCollection<Movie> FilteredMovies { get; } = new();
     public ObservableCollection<string> LogMessages { get; } = new();
     public ObservableCollection<string> FilteredLogMessages { get; } = new();
 
-    public int TotalMovies => Movies.Count;
+    public int TotalMovies => FilteredMovies.Count;
 
     [ObservableProperty]
     private string _copiedNotification = string.Empty;
+
+    partial void OnSearchQueryChanged(string value)
+    {
+        FilterMovies();
+    }
+
+    private void FilterMovies()
+    {
+        FilteredMovies.Clear();
+        var query = SearchQuery?.Trim().ToLowerInvariant();
+        foreach (var movie in AllMovies)
+        {
+            if (string.IsNullOrWhiteSpace(query) ||
+                (movie.Title != null && movie.Title.ToLowerInvariant().Contains(query)) ||
+                (movie.Year != null && movie.Year.ToString().Contains(query)) ||
+                (movie.ImdbID != null && movie.ImdbID.ToLowerInvariant().Contains(query)))
+            {
+                FilteredMovies.Add(movie);
+            }
+        }
+        OnPropertyChanged(nameof(TotalMovies));
+    }
 
     [ObservableProperty]
     private bool _copiedNotificationVisible;
@@ -107,7 +128,7 @@ public partial class MainWindowViewModel : ObservableObject
     // This constructor is used by the XAML designer.
     public MainWindowViewModel()
     {
-        Movies.CollectionChanged += Movies_CollectionChanged;
+        AllMovies.CollectionChanged += Movies_CollectionChanged;
     }
 
     public MainWindowViewModel(Database database, IBarcodeService barcodeService, MovieService movieService, IAppLogger logger, PosterService posterService)
@@ -118,7 +139,7 @@ public partial class MainWindowViewModel : ObservableObject
         _logger = logger;
         _posterService = posterService;
 
-        Movies.CollectionChanged += Movies_CollectionChanged;
+        AllMovies.CollectionChanged += Movies_CollectionChanged;
 
         if (_logger is AppLogger appLogger)
         {
@@ -261,32 +282,7 @@ public partial class MainWindowViewModel : ObservableObject
         _logger?.Log($"OnBarcodeScanned finished for barcode: {barcode}");
     }
 
-    [RelayCommand]
-    private async Task SearchMovies()
-    {
-        _logger?.Log($"Search Movies button pressed. Query: {SearchQuery}");
-        BarcodeScannerStatus = "Button Pressed: Search Movies";
-        if (_database is null) return;
-
-        SelectedMovie = null;
-        Movies.Clear();
-        if (string.IsNullOrWhiteSpace(SearchQuery))
-        {
-            var allMovies = await _database.GetMoviesAsync();
-            foreach (var movie in allMovies)
-            {
-                Movies.Add(movie);
-            }
-        }
-        else
-        {
-            var movies = await _database.SearchMoviesAsync(SearchQuery);
-            foreach (var movie in movies)
-            {
-                Movies.Add(movie);
-            }
-        }
-    }
+    // SearchMovies command is no longer needed; filtering is now instant as SearchQuery changes.
 
     [RelayCommand]
     private void AddNewMovie()
@@ -304,12 +300,13 @@ public partial class MainWindowViewModel : ObservableObject
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             SelectedMovie = null;
-            Movies.Clear();
+            AllMovies.Clear();
             foreach (var movie in movies)
             {
                 _logger?.Log($"  - Movie: {movie.Title}, ID: {movie.Id}");
-                Movies.Add(movie);
+                AllMovies.Add(movie);
             }
+            FilterMovies();
         });
     }
 }
