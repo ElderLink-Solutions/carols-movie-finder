@@ -23,8 +23,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Compress the output
-(cd "$OUTPUT_DIRECTORY" && zip -r "../../../../../$ZIP_FILE_NAME" .)
+# Copy Zadig to the publish directory before zipping
+cp "$(dirname "$0")/WindowsRequired/zadig-2.9.exe" "$OUTPUT_DIRECTORY/"
 
+# Compress the output, including Zadig
+(cd "$OUTPUT_DIRECTORY" && zip -r "../../../../../$ZIP_FILE_NAME" .)
 
 echo "Build successful. The application is zipped in $ZIP_FILE_NAME"
