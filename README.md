@@ -80,6 +80,26 @@ Log out and log back in for group changes to take effect.
 
 **Step 5:** Run the application as an administrator if you encounter permission issues accessing the USB device.
 
+May be required:
+
+1. **Download Zadig:**
+   Get the tool from its official site: https://zadig.akeo.ie/
+
+2. **Run Zadig as Administrator.**
+
+3. **Go to the menu `Options -> List All Devices` and make sure it is checked.**
+   This is a critical step.
+
+4. **In the dropdown list, find your scanner.**
+   It will likely be named "HID Keyboard Device" or something similar. Critically, select the entry and verify that the USB ID matches `28E9 03DA`.
+
+5. **You will see the current driver on the left (it will probably say `kbdhid.sys` or similar). On the right side, you need to select the driver to install. Choose `WinUSB`.**
+
+6. **Click the "Replace Driver" or "Install Driver" button.**
+
+7. **After it completes, unplug and replug your scanner.**
+   The "Keyboard" entry in Device Manager should now be gone, and you might see a new "Universal Serial Bus devices" entry.
+
 ---
 
 ### Setup Linux
