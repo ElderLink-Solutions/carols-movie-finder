@@ -52,13 +52,14 @@ public partial class App : Application
         serviceCollection.AddLogging(configure => configure.AddConsole());
 
         // Determine BarcodeService based on ENVIRONMENT setting
-        var environment = configuration["MODE"];
-        if (environment?.ToLower() == "libusb")
+        var mode = configuration["MODE"];
+        Console.WriteLine("mode: " + mode);
+        if (mode?.ToLower() == "libusb")
         {
             serviceCollection.AddSingleton<IBarcodeService, BarcodeService>();
             Console.WriteLine("Using LibUsbBarcodeService mode.");
         }
-        else if (environment?.ToLower() == "keyboardwedge")
+        else if (mode?.ToLower() == "keyboardwedge")
         {
             serviceCollection.AddSingleton<IBarcodeService, KeyboardWedgeBarcodeService>();
             Console.WriteLine("Using KeyboardWedgeBarcodeService mode.");
@@ -66,8 +67,8 @@ public partial class App : Application
         else
         {
             // Fallback or throw an error if ENVIRONMENT is not recognized
-            Console.WriteLine($"Unknown ENVIRONMENT setting: {environment}. Defaulting to KeyboardWedgeBarcodeService.");
-            serviceCollection.AddSingleton<IBarcodeService, KeyboardWedgeBarcodeService>();
+            serviceCollection.AddSingleton<IBarcodeService, BarcodeService>();
+            Console.WriteLine("Using LibUsbBarcodeService mode by default.");
         }
 
         serviceCollection.AddSingleton<MovieService>(sp =>
